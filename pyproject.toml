@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "discord_bot"
+version = "0.1.0"
+description = ""
+authors = ["Chanwoong Kim <me@chanwoong.kim>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"discord.py" = "^1.4.0"
+RestrictedPython = "^5.0"
+
+[tool.poetry.dev-dependencies]
+ptpython = "^3.0.3"
+mypy = "^0.782"
+black = "^19.10b0"
+dephell = "^0.8.3"
+flake8-import-order = "^0.18.1"
+pep8-naming = "^0.11.1"
+flake8-pytest-style = "^1.2.3"
+flake8-logging-format = "^0.6.0"
+flake8-comprehensions = "^3.2.3"
+flake8-builtins = "^1.5.3"
+flake8-bugbear = "^20.1.4"
+flake8-bandit = "^2.1.2"
+
+[tool.poetry.scripts]
+discord_bot = 'discord_bot.__init__:run_cli'
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+to = {format = "setuppy", path = "setup.py"}
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
