@@ -128,7 +128,3 @@ def run_cli():
         sys.exit(1)
     token = sys.argv[1]
     run(token)
-
-
-if __name__ == "__main__":
-    run("redacted token")
