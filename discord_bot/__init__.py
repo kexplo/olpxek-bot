@@ -98,11 +98,12 @@ class MyBot(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if message.author.bot:
+            return
         for keywords, reactions in self.text_reactions.items():
             for keyword in keywords:
                 if keyword in message.content:
-                    await message.channel.send(random.choice(reactions))
-                    break
+                    return await message.channel.send(random.choice(reactions))
 
     def add_reaction(self, comma_separated_keywords: str, reactions: Tuple):
         keywords = tuple(map(str.strip, comma_separated_keywords.split(",")))
