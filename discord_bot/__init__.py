@@ -105,7 +105,9 @@ class MyBot(commands.Cog):
                 if keyword in message.content:
                     return await message.channel.send(random.choice(reactions))
 
-    def add_reaction(self, comma_separated_keywords: str, reactions: Tuple):
+    def add_text_reaction(self,
+                          comma_separated_keywords: str,
+                          reactions: Tuple):
         keywords = tuple(map(str.strip, comma_separated_keywords.split(",")))
         self.text_reactions[keywords] = reactions
 
@@ -113,11 +115,11 @@ class MyBot(commands.Cog):
 def run(token: str):
     bot = commands.Bot(command_prefix="!")
     mybot = MyBot(bot)
-    mybot.add_reaction(
+    mybot.add_text_reaction(
         "아니야?, 아닌가, 아닐걸, 아닐껄, 아냐?, 아닙니까, 그런가, 아님?, 아닌가요, 아닌가여, 실화냐, 실화입니까, 합니까, 됩니까?, 됩니까",
         ("응 아니야", "응 맞아", "아닐걸", "맞을걸"),
     )
-    mybot.add_reaction("왜죠", ("저야 모르죠",))
+    mybot.add_text_reaction("왜죠", ("저야 모르죠",))
     bot.add_cog(mybot)
     bot.run(token)
 
