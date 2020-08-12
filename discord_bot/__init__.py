@@ -80,7 +80,7 @@ class MyBot(commands.Cog):
                 return await ctx.send("TimeoutError")
             return await ctx.send(result)
 
-    @commands.command(aliases=("골라",))
+    @commands.command(aliases=("골라", "뽑아", "뽑기"))
     async def choice(self, ctx, *args):
         if len(args) == 0:
             return
