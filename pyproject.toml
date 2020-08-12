@@ -9,6 +9,10 @@ license = "MIT"
 python = "^3.8"
 "discord.py" = "^1.4.0"
 RestrictedPython = "^5.0"
+playwright = "^0.7.1"
+httpx = "^0.14.1"
+cachetools = "^4.1.1"
+asyncache = "^0.1.1"
 
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0.3"

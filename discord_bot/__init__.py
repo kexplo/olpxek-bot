@@ -1,5 +1,6 @@
 import asyncio
 import concurrent.futures
+import io
 import logging
 import os
 import random
@@ -11,6 +12,7 @@ from discord import Emoji
 from discord.ext import commands
 
 from discord_bot.eval_py import eval_py
+from discord_bot.stock import get_finviz_map_capture, get_stock_metadata
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger('discord')
@@ -22,6 +24,7 @@ class MyBot(commands.Cog):
         self.bot = bot
         self.text_reactions = {}  # type: Map[Tuple[str], Tuple[str]]
         self.cached_emojis = {}  # type: Map[str, discord.Emoji]
+        self.finviz_cmd_lock = asyncio.Lock()
 
     def _bot_init(self):
         self._cache_emojis(self.bot)
@@ -91,6 +94,64 @@ class MyBot(commands.Cog):
         items = list(args)
         random.shuffle(items)
         await ctx.send(" ".join(items))
+
+    @commands.command()
+    async def finviz(self, ctx):
+        async with self.finviz_cmd_lock:
+            # await ctx.message.add_reaction('...')
+            capture = await get_finviz_map_capture()
+            await ctx.send(file=discord.File(io.BytesIO(capture),
+                                             filename='finviz.png'))
+
+    @commands.command()
+    async def stock_day(self, ctx, arg):
+        from discord_bot.stock import get_stock_graph_day
+        reuters_code, __, __, __ = await get_stock_metadata(arg)
+        graph_png = await get_stock_graph_day(reuters_code)
+        await ctx.send(file=discord.File(io.BytesIO(graph_png),
+                                         filename='graph.png'))
+
+    @commands.command()
+    async def stock_candle(self, ctx, arg):
+        from discord_bot.stock import get_stock_graph_candle
+        reuters_code, __, __, __ = await get_stock_metadata(arg)
+        graph_png = await get_stock_graph_candle(reuters_code)
+        await ctx.send(file=discord.File(io.BytesIO(graph_png),
+                                         filename='graph.png'))
+
+    @commands.command()
+    async def stock(self, ctx, arg):
+        from discord_bot.stock import get_basic_stock_info_world
+        from discord_bot.stock import get_stock_graph_day_url
+        reuters_code, market, __, __ = await get_stock_metadata(arg)
+        if market in ['코스피', '코스닥']:
+            return await ctx.send('준비중')
+        (stock_name, stock_name_eng, stock_exchange_name,
+         close_price, compare_price, compare_ratio,
+         total_infos) = await get_basic_stock_info_world(reuters_code)
+
+        # append '+'
+        if compare_price[0] != '-':
+            compare_price = '+' + compare_price
+        if compare_ratio[0] != '-':
+            compare_ratio = '+' + compare_ratio
+
+        graph_url = get_stock_graph_day_url(reuters_code)
+
+        embed = discord.Embed(
+            title=f'{stock_name} ({stock_name_eng})',
+            description=(f'{reuters_code} ({stock_exchange_name})\n\n'
+                         f'**{close_price}**\n'
+                         f'{compare_price}  {compare_ratio}\n----------'),
+            colour=discord.Color.blue())
+        for k, v in total_infos.items():
+            embed.add_field(name=k, value=v)
+        embed.set_footer(text='powered by NAVER stock')
+        embed.set_image(url=graph_url)
+
+        # graph_png = await get_stock_graph_day(reuters_code)
+        # file=discord.File(io.BytesIO(graph_png), filename='graph.png'))
+        await ctx.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_ready(self):
