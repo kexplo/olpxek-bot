@@ -97,7 +97,7 @@ class MyBot(commands.Cog):
     @commands.command()
     async def finviz(self, ctx):
         async with self.finviz_cmd_lock:
-            # await ctx.message.add_reaction('...')
+            await ctx.message.add_reaction('🆗')
             capture = await get_finviz_map_capture()
             await ctx.send(file=discord.File(io.BytesIO(capture),
                                              filename='finviz.png'))
