@@ -21,8 +21,8 @@ from discord_bot.stock import get_finviz_map_capture
 class MyBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.text_reactions = {}  # type: Map[Tuple[str], Tuple[str]]
-        self.cached_emojis = {}  # type: Map[str, discord.Emoji]
+        self.text_reactions = {}  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
+        self.cached_emojis = {}  # type: Dict[str, discord.Emoji]
         self.finviz_cmd_lock = asyncio.Lock()
 
     def _bot_init(self):
@@ -32,7 +32,7 @@ class MyBot(commands.Cog):
         def find_emoji(name):
             return discord.utils.find(lambda x: x.name == name, bot.emojis)
 
-        cache_emoji_names = ["_x", "_v"]
+        cache_emoji_names = ["_x", "_v", "small_blue_triangle_down"]
         for emoji_name in cache_emoji_names:
             emoji = find_emoji(emoji_name)
             if emoji is not None:
@@ -64,7 +64,6 @@ class MyBot(commands.Cog):
 
     @commands.command()
     async def py(self, ctx, *, arg):
-        loop = asyncio.get_running_loop()
         with concurrent.futures.ProcessPoolExecutor(max_workers=2) as pool:
             future = pool.submit(eval_py, arg)
             try:
@@ -163,11 +162,11 @@ class MyBot(commands.Cog):
         for keywords, reactions in self.text_reactions.items():
             for keyword in keywords:
                 if keyword in message.content:
-                    return await message.channel.send(random.choice(reactions))
+                    return await message.channel.send(random.choice(reactions))  # noqa: S311, E501
 
     def add_text_reaction(self,
                           comma_separated_keywords: str,
-                          reactions: Tuple):
+                          reactions: Tuple[str, ...]):
         keywords = tuple(map(str.strip, comma_separated_keywords.split(",")))
         self.text_reactions[keywords] = reactions
 
@@ -176,7 +175,7 @@ def run(token: str):
     bot = commands.Bot(command_prefix="!")
     mybot = MyBot(bot)
     mybot.add_text_reaction(
-        "아니야?, 아닌가, 아닐걸, 아닐껄, 아냐?, 아닙니까, 그런가, 아님?, 아닌가요, 아닌가여, 실화냐, 실화입니까, 합니까, 됩니까?, 됩니까",
+        "아니야?, 아닌가, 아닐걸, 아닐껄, 아냐?, 아닙니까, 그런가, 아님?, 아닌가요, 아닌가여, 실화냐, 실화입니까, 합니까, 됩니까?, 됩니까",  # noqa: E501
         ("응 아니야", "응 맞아", "아닐걸", "맞을걸"),
     )
     mybot.add_text_reaction("왜죠", ("저야 모르죠",))
