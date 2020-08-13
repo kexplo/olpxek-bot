@@ -5,14 +5,13 @@ import logging
 import os
 import random
 import sys
-from typing import Tuple
+from typing import Dict, Tuple
 
 import discord
-from discord import Emoji
 from discord.ext import commands
 
 from discord_bot.eval_py import eval_py
-from discord_bot.stock import get_finviz_map_capture, get_stock_metadata
+from discord_bot.stock import get_finviz_map_capture
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger('discord')
@@ -105,52 +104,52 @@ class MyBot(commands.Cog):
 
     @commands.command()
     async def stock_day(self, ctx, arg):
-        from discord_bot.stock import get_stock_graph_day
-        reuters_code, __, __, __ = await get_stock_metadata(arg)
-        graph_png = await get_stock_graph_day(reuters_code)
+        from discord_bot.stock import get_stock_day_graph_png
+        graph_png = await get_stock_day_graph_png(arg)
         await ctx.send(file=discord.File(io.BytesIO(graph_png),
                                          filename='graph.png'))
 
     @commands.command()
     async def stock_candle(self, ctx, arg):
-        from discord_bot.stock import get_stock_graph_candle
-        reuters_code, __, __, __ = await get_stock_metadata(arg)
-        graph_png = await get_stock_graph_candle(reuters_code)
+        from discord_bot.stock import get_stock_candle_graph_png
+        graph_png = await get_stock_candle_graph_png(arg)
         await ctx.send(file=discord.File(io.BytesIO(graph_png),
                                          filename='graph.png'))
 
     @commands.command()
-    async def stock(self, ctx, arg):
-        from discord_bot.stock import get_basic_stock_info_world
-        from discord_bot.stock import get_stock_graph_day_url
-        reuters_code, market, __, __ = await get_stock_metadata(arg)
-        if market in ['코스피', '코스닥']:
+    async def stock(self, ctx, *args):
+        if len(args) == 0:
+            return
+        from discord_bot.stock import get_stock_data
+
+        show_total_infos = False
+        if len(args) == 2:
+            if args[1] .lower() in ['-f', '--full', 'full', 'f']:
+                show_total_infos = True
+        query = args[0]
+
+        try:
+            stock_data = await get_stock_data(query)
+        except NotImplementedError:
             return await ctx.send('준비중')
-        (stock_name, stock_name_eng, stock_exchange_name,
-         close_price, compare_price, compare_ratio,
-         total_infos) = await get_basic_stock_info_world(reuters_code)
-
-        # append '+'
-        if compare_price[0] != '-':
-            compare_price = '+' + compare_price
-        if compare_ratio[0] != '-':
-            compare_ratio = '+' + compare_ratio
-
-        graph_url = get_stock_graph_day_url(reuters_code)
 
         embed = discord.Embed(
-            title=f'{stock_name} ({stock_name_eng})',
-            description=(f'{reuters_code} ({stock_exchange_name})\n\n'
-                         f'**{close_price}**\n'
-                         f'{compare_price}  {compare_ratio}\n----------'),
+            title=f'{stock_data.name} ({stock_data.name_eng})',
+            description=(
+                f'{stock_data.symbol_code} '
+                f'({stock_data.stock_exchange_name})\n\n'
+                f'**{stock_data.close_price}**\n'
+                f'{stock_data.compare_price}  '
+                f'{stock_data.compare_ratio}\n----------'),
             colour=discord.Color.blue())
-        for k, v in total_infos.items():
-            embed.add_field(name=k, value=v)
+        if show_total_infos:
+            for k, v in stock_data.total_infos.items():
+                embed.add_field(name=k, value=v)
+        else:
+            embed.add_field(name='종합 정보',
+                            value='두 번째 인자로 `-f`를 추가하세요')
         embed.set_footer(text='powered by NAVER stock')
-        embed.set_image(url=graph_url)
-
-        # graph_png = await get_stock_graph_day(reuters_code)
-        # file=discord.File(io.BytesIO(graph_png), filename='graph.png'))
+        embed.set_image(url=stock_data.day_graph_url)
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()

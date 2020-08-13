@@ -1,10 +1,14 @@
 import asyncio
-from typing import Tuple
+from typing import TYPE_CHECKING
 
 from asyncache import cached
 from cachetools import TTLCache
 import httpx
 from playwright import async_playwright
+
+from discord_bot.naver_stock_api import (
+    NaverStockAPI, NaverStockMetadata, NaverStockData
+)
 
 # 'python -m playwright install'이 필요하다
 
@@ -34,87 +38,22 @@ async def get_finviz_map_capture() -> bytes:
     return screenshot
 
 
-async def get_stock_metadata(query: str) -> Tuple[str, str, str, str]:
-    url_tmpl = 'https://ac.finance.naver.com/ac?q={query}&q_enc=euc-kr&t_koreng=1&st=111&r_lt=111'  # noqa: E501
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url_tmpl.format(query=query))
-        first_item = r.json()['items'][0][0]
-        stock_code, display_name, market, url, reuters_code = first_item
-        # NOTE: 모든 값이 list로 감싸져있다
-    return (
-        reuters_code[0], market[0], display_name[0],
-        f'https://m.stock.naver.com{url[0]}'
-    )
-
-
-async def get_stock_info(query: str):
-    reuters_code, market, display_name, url = await get_stock_metadata(query)
-    pass
-
-
-# 1일
-# https://ssl.pstatic.net/imgfinance/chart/mobile/world/item/day/AAPL.O_end.png?1597143600000
-# 일봉
-# https://ssl.pstatic.net/imgfinance/chart/mobile/world/item/candle/day/AAPL.O_end.png?1597143600000
-
-def get_stock_graph_day_url(reuters_code: str) -> str:
-    url = f'https://ssl.pstatic.net/imgfinance/chart/mobile/world/item/day/{reuters_code}_end.png?1597143600000'  # noqa: E501
-    return url
-
-
-async def get_stock_graph_day(reuters_code: str) -> bytes:
-    url = get_stock_graph_day_url(reuters_code)
+async def get_stock_day_graph_png(query: str) -> bytes:
+    api = await NaverStockAPI.from_query(query)
+    url = api.get_day_graph_url()
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
         return r.content
 
 
-async def get_stock_graph_candle(reuters_code: str) -> bytes:
-    url = f'https://ssl.pstatic.net/imgfinance/chart/mobile/world/item/candle/day/{reuters_code}_end.png?1597143600000'  # noqa: E501
+async def get_stock_candle_graph_png(query: str) -> bytes:
+    api = await NaverStockAPI.from_query(query)
+    url = api.get_candle_graph_url()
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
         return r.content
 
 
-async def get_basic_stock_info_world(reuters_code: str):
-    basic_info = None
-    async with httpx.AsyncClient() as client:
-        r = await client.get(
-            f'https://api.stock.naver.com/stock/{reuters_code}/basic')
-        basic_info = r.json()
-
-    stock_name = basic_info['stockName']
-    stock_name_eng = basic_info['stockNameEng']
-    close_price = basic_info['closePrice']
-    stock_exchange_name = basic_info['stockExchangeType']['name']  # e.g., NYSE
-    compare_price = basic_info['compareToPreviousClosePrice']  # 변동값
-    compare_ratio = basic_info['fluctuationsRatio'] + '%'  # 변동%
-    total_infos = {}
-    for total_info in basic_info['stockItemTotalInfos']:
-        total_infos[total_info['key']] = total_info['value']
-        # code, key, value[,
-        #   compareToPreviousPrice[code(2,5), text(상승,하락), name]]
-    return (stock_name, stock_name_eng, stock_exchange_name, close_price,
-            compare_price, compare_ratio,
-            total_infos)
-
-
-async def get_basic_stock_info_kospi(reuters_code: str):
-    # https://m.stock.naver.com/api/item/getOverallHeaderItem.nhn?code=005930
-    # json['result']
-    # 'lv': 저가
-    # 'hv': 고가
-    # 'pvc': 전일?
-    # 'cr': 변동율%
-    # 'cv' 변동값
-    # 'nv' 현재가?
-    # 시가가 없음 (종합 정보에만 있음)
-
-    # 종합 정보: HTML이라서 파싱해야 함
-    # https://m.stock.naver.com/api/html/item/getOverallInfo.nhn?code=091990
-
-    # 일봉
-    # https://ssl.pstatic.net/imgfinance/chart/mobile/candle/day/091990_end.png
-    # 1일
-    # https://ssl.pstatic.net/imgfinance/chart/mobile/day/091990_end.png
-    pass
+async def get_stock_data(query: str) -> NaverStockData:
+    api = await NaverStockAPI.from_query(query)
+    return await api.get_stock_data()
