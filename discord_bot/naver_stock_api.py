@@ -40,6 +40,7 @@ class NaverStockData:
     image_charts: Dict[str, str]
     day_graph_url: str = field(init=False)
     candle_graph_url: str = field(init=False)
+    url: str = field(init=False)
 
     def __post_init__(self):
         if self.compare_price[0] != '-':
@@ -74,6 +75,7 @@ class NaverStockAPIParser(metaclass=ABCMeta):
 
     async def get_stock_data(self) -> NaverStockData:
         stock_data = await self._get_stock_data_impl()
+        stock_data.url = self.metadata.url
         return stock_data
 
     @classmethod

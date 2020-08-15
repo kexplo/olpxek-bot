@@ -134,6 +134,7 @@ class MyBot(commands.Cog):
 
         embed = discord.Embed(
             title=f'{stock_data.name} ({stock_data.name_eng})',
+            url=stock_data.url,
             description=(
                 f'{stock_data.symbol_code} '
                 f'({stock_data.stock_exchange_name})\n\n'
