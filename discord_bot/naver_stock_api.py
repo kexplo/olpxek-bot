@@ -46,6 +46,7 @@ class NaverStockData:
             self.compare_price = '🔺' + self.compare_price
         if self.compare_ratio[0] != '-':
             self.compare_ratio = '🔺' + self.compare_ratio
+        self.compare_ratio += '%'
         self.day_graph_url = self.image_charts['day']
         self.candle_graph_url = self.image_charts['candleMonth']
 
