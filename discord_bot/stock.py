@@ -40,7 +40,8 @@ async def get_finviz_map_capture() -> bytes:
 
 async def get_stock_day_graph_png(query: str) -> bytes:
     api = await NaverStockAPI.from_query(query)
-    url = api.get_day_graph_url()
+    stock_data = await api.get_stock_data()
+    url = stock_data.day_graph_url
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
         return r.content
@@ -48,7 +49,8 @@ async def get_stock_day_graph_png(query: str) -> bytes:
 
 async def get_stock_candle_graph_png(query: str) -> bytes:
     api = await NaverStockAPI.from_query(query)
-    url = api.get_candle_graph_url()
+    stock_data = await api.get_stock_data()
+    url = stock_data.candle_graph_url
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
         return r.content

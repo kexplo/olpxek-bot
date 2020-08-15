@@ -36,6 +36,8 @@ class NaverStockData:
     compare_price: str
     compare_ratio: str
     total_infos: Dict[str, str]  # TODO: ETF랑 Stock이랑 별도로 정의하면 좋겠다
+    image_chart_types: List[str]
+    image_charts: Dict[str, str]
     day_graph_url: str = field(init=False)
     candle_graph_url: str = field(init=False)
 
@@ -44,6 +46,8 @@ class NaverStockData:
             self.compare_price = '🔺' + self.compare_price
         if self.compare_ratio[0] != '-':
             self.compare_ratio = '🔺' + self.compare_ratio
+        self.day_graph_url = self.image_charts['day']
+        self.candle_graph_url = self.image_charts['candleMonth']
 
 
 class NaverStockAPIResponse(TypedDict):
@@ -55,23 +59,13 @@ class NaverStockAPIResponse(TypedDict):
     compareToPreviousClosePrice: str  # noqa: N815
     stockItemTotalInfos: List[Dict[str, str]]  # noqa: N815
     fluctuationsRatio: str  # noqa: N815
+    imageChartTypes: List[str]  # noqa: N815
+    imageCharts: Dict[str, str]  # noqa: N815
 
 
 class NaverStockAPIParser(metaclass=ABCMeta):
     def __init__(self, stock_metadata: NaverStockMetadata):
         self.metadata = stock_metadata
-
-    def get_day_graph_url(self):
-        return (
-            f'https://ssl.pstatic.net/imgfinance/chart/mobile/world/item/day/'
-            f'{self.metadata.reuters_code}_end.png'
-        )
-
-    def get_candle_graph_url(self):
-        return(
-            f'https://ssl.pstatic.net/imgfinance/chart/mobile/world/item/'
-            f'candle/day/{self.metadata.reuters_code}_end.png'
-        )
 
     @abstractmethod
     async def _get_stock_data_impl(self) -> NaverStockData:
@@ -79,8 +73,6 @@ class NaverStockAPIParser(metaclass=ABCMeta):
 
     async def get_stock_data(self) -> NaverStockData:
         stock_data = await self._get_stock_data_impl()
-        stock_data.day_graph_url = self.get_day_graph_url()
-        stock_data.candle_graph_url = self.get_candle_graph_url()
         return stock_data
 
     @classmethod
@@ -102,7 +94,9 @@ class NaverStockAPIParser(metaclass=ABCMeta):
             response['stockExchangeType']['name'],
             response['compareToPreviousClosePrice'],
             response['fluctuationsRatio'],
-            total_infos
+            total_infos,
+            response['imageChartTypes'],
+            response['imageCharts']
         )
 
 
@@ -169,12 +163,6 @@ class NaverStockAPI(object):
     def __init__(self, metadata: NaverStockMetadata):
         self.metadata = metadata
         self.parser = NaverStockAPIParserFactory.from_metadata(metadata)
-
-    def get_day_graph_url(self) -> str:
-        return self.parser.get_day_graph_url()
-
-    def get_candle_graph_url(self) -> str:
-        return self.parser.get_candle_graph_url()
 
     async def get_stock_data(self) -> NaverStockData:
         return await self.parser.get_stock_data()
