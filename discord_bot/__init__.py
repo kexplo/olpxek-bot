@@ -132,8 +132,13 @@ class MyBot(commands.Cog):
         except NotImplementedError:
             return await ctx.send('준비중')
 
+        if stock_data.name_eng is None:
+            title = f'{stock_data.name}'
+        else:
+            title = f'{stock_data.name} ({stock_data.name_eng})',
+
         embed = discord.Embed(
-            title=f'{stock_data.name} ({stock_data.name_eng})',
+            title=title,
             url=stock_data.url,
             description=(
                 f'{stock_data.symbol_code} '

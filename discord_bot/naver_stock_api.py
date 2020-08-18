@@ -1,8 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, TypedDict
+from typing import Dict, List, Optional, TypedDict
 
 from asyncache import cached
+from bs4 import BeautifulSoup
 from cachetools import LRUCache
 import httpx
 
@@ -29,7 +30,7 @@ class NaverStockMetadata:
 @dataclass
 class NaverStockData:
     name: str
-    name_eng: str
+    name_eng: Optional[str]
     symbol_code: str
     close_price: str
     stock_exchange_name: str
@@ -48,8 +49,16 @@ class NaverStockData:
         if self.compare_ratio[0] != '-':
             self.compare_ratio = '🔺' + self.compare_ratio
         self.compare_ratio += '%'
-        self.day_graph_url = self.image_charts['day']
-        self.candle_graph_url = self.image_charts['candleMonth']
+
+        # NOTE: 국내 주식 정보와 해외 주식 정보의 데이터 양식이 다르다
+        if 'day' in self.image_charts:
+            self.day_graph_url = self.image_charts['day']
+        else:
+            self.day_graph_url = self.image_charts['1일']
+        if 'candleMonth' in self.image_charts:
+            self.candle_graph_url = self.image_charts['candleMonth']
+        else:
+            self.candle_graph_url = self.image_charts['일봉']
 
 
 class NaverStockAPIResponse(TypedDict):
@@ -126,7 +135,54 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
 
 
 class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
-    pass
+    async def _get_stock_data_impl(self) -> NaverStockData:
+        code = self.metadata.symbol_code
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                'https://m.stock.naver.com/api/item/getOverallHeaderItem.nhn'
+                f'?code={code}')
+            header_json = r.json()['result']
+
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                'https://m.stock.naver.com/api/html/item/getOverallInfo.nhn'
+                f'?code={code}')
+            html = r.text
+
+        name = header_json['nm']
+        time = header_json['time']
+        symbol_code = header_json['cd']
+        close_price = f'{header_json["nv"]:,}'
+        compare_price = f'{header_json["cv"]:,}'
+        compare_ratio = f'{header_json["cr"]:,}'
+        stock_exchange_name = self.metadata.stock_exchange_name
+
+        soup = BeautifulSoup(html, 'html.parser')
+        total_info_lis = soup.select('ul.total_lst > li')
+        total_infos = {
+            li.find('div').text.strip(): li.find('span').text.strip()
+            for li in total_info_lis}
+
+        image_chart_types = [li.find('span').text.strip()
+                             for li in soup.select('ul.lnb_lst > li')]
+        # 클라이언트에서 이미지 캐시되는 것을 막기 위해
+        # 유효하지 않지만 URL 뒤에 '?time' 인자를 덧붙인다
+        charts = [img.attrs['data-src'] + f'?{time}'
+                  for img in soup.select('div.flick-ct * > img')]
+        image_charts = {img_type: chart
+                        for img_type, chart in zip(image_chart_types, charts)}
+        return NaverStockData(
+            name,
+            None,
+            symbol_code,
+            close_price,
+            stock_exchange_name,
+            compare_price,
+            compare_ratio,
+            total_infos,
+            image_chart_types,
+            image_charts
+        )
 
 
 class NaverStockAPIParserFactory(object):
@@ -136,8 +192,8 @@ class NaverStockAPIParserFactory(object):
             if stock_metadata.is_etf:
                 return NaverStockAPIGlobalETFParser(stock_metadata)
             return NaverStockAPIGlobalStockParser(stock_metadata)
-        # TODO: kospi, kosdaq
-        raise NotImplementedError
+        # kospi, kosdaq
+        return NaverStockAPIKoreaStockParser(stock_metadata)
 
 
 class NaverStockAPI(object):
