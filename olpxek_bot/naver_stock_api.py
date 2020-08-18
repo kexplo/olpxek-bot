@@ -87,6 +87,23 @@ class NaverStockAPIParser(metaclass=ABCMeta):
         stock_data.url = self.metadata.url
         return stock_data
 
+
+class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
+    def _get_url_prefix(self):
+        if self.metadata.is_etf:
+            return "https://api.stock.naver.com/etf/"
+        else:
+            return "https://api.stock.naver.com/stock/"
+
+    async def _get_stock_data_impl(self) -> NaverStockData:
+        json_dict = None
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                self._get_url_prefix() + f"{self.metadata.reuters_code}/basic"
+            )
+            json_dict = r.json()
+        return self.api_response_to_stock_data(json_dict)
+
     @classmethod
     def api_response_to_stock_data(
         cls, response: NaverStockAPIResponse
@@ -109,30 +126,6 @@ class NaverStockAPIParser(metaclass=ABCMeta):
             response["imageChartTypes"],
             response["imageCharts"],
         )
-
-
-class NaverStockAPIGlobalETFParser(NaverStockAPIParser):
-    async def _get_stock_data_impl(self) -> NaverStockData:
-        json_dict = None
-        async with httpx.AsyncClient() as client:
-            r = await client.get(
-                f"https://api.stock.naver.com/etf/"
-                f"{self.metadata.reuters_code}/basic"
-            )
-            json_dict = r.json()
-        return self.api_response_to_stock_data(json_dict)
-
-
-class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
-    async def _get_stock_data_impl(self) -> NaverStockData:
-        json_dict = None
-        async with httpx.AsyncClient() as client:
-            r = await client.get(
-                f"https://api.stock.naver.com/stock/"
-                f"{self.metadata.reuters_code}/basic"
-            )
-            json_dict = r.json()
-        return self.api_response_to_stock_data(json_dict)
 
 
 class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
@@ -199,8 +192,6 @@ class NaverStockAPIParserFactory(object):
     @classmethod
     def from_metadata(cls, stock_metadata: NaverStockMetadata):
         if stock_metadata.is_global:
-            if stock_metadata.is_etf:
-                return NaverStockAPIGlobalETFParser(stock_metadata)
             return NaverStockAPIGlobalStockParser(stock_metadata)
         # kospi, kosdaq
         return NaverStockAPIKoreaStockParser(stock_metadata)
