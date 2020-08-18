@@ -142,7 +142,7 @@ class OlpxekBot(commands.Cog):
         if stock_data.name_eng is None:
             title = f"{stock_data.name}"
         else:
-            title = (f"{stock_data.name} ({stock_data.name_eng})",)
+            title = f"{stock_data.name} ({stock_data.name_eng})"
 
         embed = discord.Embed(
             title=title,
