@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "olpxek_bot"
+name = "olpxek-bot"
 version = "0.1.0"
 description = ""
 authors = ["Chanwoong Kim <me@chanwoong.kim>"]
