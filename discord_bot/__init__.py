@@ -115,7 +115,7 @@ class MyBot(commands.Cog):
         await ctx.send(file=discord.File(io.BytesIO(graph_png),
                                          filename='graph.png'))
 
-    @commands.command()
+    @commands.command(aliases=('주식', '주가'))
     async def stock(self, ctx, *args):
         if len(args) == 0:
             return
