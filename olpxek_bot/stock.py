@@ -6,7 +6,7 @@ from cachetools import TTLCache
 import httpx
 from playwright import async_playwright
 
-from discord_bot.naver_stock_api import (
+from olpxek_bot.naver_stock_api import (
     NaverStockAPI, NaverStockMetadata, NaverStockData
 )
 

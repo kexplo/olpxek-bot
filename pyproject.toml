@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "discord_bot"
+name = "olpxek_bot"
 version = "0.1.0"
 description = ""
 authors = ["Chanwoong Kim <me@chanwoong.kim>"]
@@ -30,7 +30,7 @@ flake8-bugbear = "^20.1.4"
 flake8-bandit = "^2.1.2"
 
 [tool.poetry.scripts]
-discord_bot = 'discord_bot.__init__:run_cli'
+olpxek_bot = 'olpxek_bot.__init__:run_cli'
 
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}

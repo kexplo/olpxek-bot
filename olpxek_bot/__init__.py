@@ -10,8 +10,8 @@ from typing import Dict, Tuple
 import discord
 from discord.ext import commands
 
-from discord_bot.eval_py import eval_py
-from discord_bot.stock import get_finviz_map_capture
+from olpxek_bot.eval_py import eval_py
+from olpxek_bot.stock import get_finviz_map_capture
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger('discord')
@@ -103,14 +103,14 @@ class MyBot(commands.Cog):
 
     @commands.command()
     async def stock_day(self, ctx, arg):
-        from discord_bot.stock import get_stock_day_graph_png
+        from olpxek_bot.stock import get_stock_day_graph_png
         graph_png = await get_stock_day_graph_png(arg)
         await ctx.send(file=discord.File(io.BytesIO(graph_png),
                                          filename='graph.png'))
 
     @commands.command()
     async def stock_candle(self, ctx, arg):
-        from discord_bot.stock import get_stock_candle_graph_png
+        from olpxek_bot.stock import get_stock_candle_graph_png
         graph_png = await get_stock_candle_graph_png(arg)
         await ctx.send(file=discord.File(io.BytesIO(graph_png),
                                          filename='graph.png'))
@@ -119,7 +119,7 @@ class MyBot(commands.Cog):
     async def stock(self, ctx, *args):
         if len(args) == 0:
             return
-        from discord_bot.stock import get_stock_data
+        from olpxek_bot.stock import get_stock_data
 
         show_total_infos = False
         if len(args) == 2:
