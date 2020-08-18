@@ -1,6 +1,3 @@
-import asyncio
-from typing import TYPE_CHECKING
-
 from asyncache import cached
 from cachetools import TTLCache
 import httpx
@@ -8,7 +5,6 @@ from playwright import async_playwright
 
 from olpxek_bot.naver_stock_api import (
     NaverStockAPI,
-    NaverStockMetadata,
     NaverStockData,
 )
 
