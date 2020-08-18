@@ -134,10 +134,7 @@ class OlpxekBot(commands.Cog):
                 show_total_infos = True
         query = args[0]
 
-        try:
-            stock_data = await get_stock_data(query)
-        except NotImplementedError:
-            return await ctx.send("준비중")
+        stock_data = await get_stock_data(query)
 
         if stock_data.name_eng is None:
             title = f"{stock_data.name}"
