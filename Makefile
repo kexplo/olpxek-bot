@@ -4,6 +4,7 @@ CODE = olpxek_bot
 
 init:
 	poetry install
+	poetry run python -m playwright install
 
 test:
 	poetry run pytest
