@@ -9,7 +9,7 @@ test:
 	poetry run pytest
 
 lint:
-	poetry run black --line-length=79 --check $(CODE)
+	poetry run black --line-length=79 --check --diff $(CODE)
 
 format:
 	poetry run black --line-length=79 $(CODE)
