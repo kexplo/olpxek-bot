@@ -1,6 +1,6 @@
 .PHONY: init test lint format build
 
-CODE = run.py
+CODE = olpxek_bot
 
 init:
 	poetry install
