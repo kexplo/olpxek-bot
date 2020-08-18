@@ -1,4 +1,5 @@
 from RestrictedPython import compile_restricted_eval
+
 # from RestrictedPython import PrintCollector
 from RestrictedPython import (
     limited_builtins,

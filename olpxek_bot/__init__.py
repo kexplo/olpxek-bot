@@ -21,7 +21,9 @@ from olpxek_bot.stock import get_finviz_map_capture
 class OlpxekBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.text_reactions = {}  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
+        self.text_reactions = (
+            {}
+        )  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
         self.cached_emojis = {}  # type: Dict[str, discord.Emoji]
         self.finviz_cmd_lock = asyncio.Lock()
 
@@ -96,26 +98,31 @@ class OlpxekBot(commands.Cog):
     @commands.command()
     async def finviz(self, ctx):
         async with self.finviz_cmd_lock:
-            await ctx.message.add_reaction('🆗')
+            await ctx.message.add_reaction("🆗")
             capture = await get_finviz_map_capture()
-            await ctx.send(file=discord.File(io.BytesIO(capture),
-                                             filename='finviz.png'))
+            await ctx.send(
+                file=discord.File(io.BytesIO(capture), filename="finviz.png")
+            )
 
     @commands.command()
     async def stock_day(self, ctx, arg):
         from olpxek_bot.stock import get_stock_day_graph_png
+
         graph_png = await get_stock_day_graph_png(arg)
-        await ctx.send(file=discord.File(io.BytesIO(graph_png),
-                                         filename='graph.png'))
+        await ctx.send(
+            file=discord.File(io.BytesIO(graph_png), filename="graph.png")
+        )
 
     @commands.command()
     async def stock_candle(self, ctx, arg):
         from olpxek_bot.stock import get_stock_candle_graph_png
-        graph_png = await get_stock_candle_graph_png(arg)
-        await ctx.send(file=discord.File(io.BytesIO(graph_png),
-                                         filename='graph.png'))
 
-    @commands.command(aliases=('주식', '주가'))
+        graph_png = await get_stock_candle_graph_png(arg)
+        await ctx.send(
+            file=discord.File(io.BytesIO(graph_png), filename="graph.png")
+        )
+
+    @commands.command(aliases=("주식", "주가"))
     async def stock(self, ctx, *args):
         if len(args) == 0:
             return
@@ -123,37 +130,40 @@ class OlpxekBot(commands.Cog):
 
         show_total_infos = False
         if len(args) == 2:
-            if args[1] .lower() in ['-f', '--full', 'full', 'f']:
+            if args[1].lower() in ["-f", "--full", "full", "f"]:
                 show_total_infos = True
         query = args[0]
 
         try:
             stock_data = await get_stock_data(query)
         except NotImplementedError:
-            return await ctx.send('준비중')
+            return await ctx.send("준비중")
 
         if stock_data.name_eng is None:
-            title = f'{stock_data.name}'
+            title = f"{stock_data.name}"
         else:
-            title = f'{stock_data.name} ({stock_data.name_eng})',
+            title = (f"{stock_data.name} ({stock_data.name_eng})",)
 
         embed = discord.Embed(
             title=title,
             url=stock_data.url,
             description=(
-                f'{stock_data.symbol_code} '
-                f'({stock_data.stock_exchange_name})\n\n'
-                f'**{stock_data.close_price}**\n'
-                f'{stock_data.compare_price}  '
-                f'{stock_data.compare_ratio}\n----------'),
-            colour=discord.Color.blue())
+                f"{stock_data.symbol_code} "
+                f"({stock_data.stock_exchange_name})\n\n"
+                f"**{stock_data.close_price}**\n"
+                f"{stock_data.compare_price}  "
+                f"{stock_data.compare_ratio}\n----------"
+            ),
+            colour=discord.Color.blue(),
+        )
         if show_total_infos:
             for k, v in stock_data.total_infos.items():
                 embed.add_field(name=k, value=v)
         else:
-            embed.add_field(name='종합 정보',
-                            value='두 번째 인자로 `-f`를 추가하세요')
-        embed.set_footer(text='powered by NAVER stock')
+            embed.add_field(
+                name="종합 정보", value="두 번째 인자로 `-f`를 추가하세요"
+            )  # fmt: off
+        embed.set_footer(text="powered by NAVER stock")
         embed.set_image(url=stock_data.day_graph_url)
         await ctx.send(embed=embed)
 
@@ -168,11 +178,13 @@ class OlpxekBot(commands.Cog):
         for keywords, reactions in self.text_reactions.items():
             for keyword in keywords:
                 if keyword in message.content:
-                    return await message.channel.send(random.choice(reactions))  # noqa: S311, E501
+                    return await message.channel.send(
+                        random.choice(reactions)  # noqa: S311
+                    )
 
-    def add_text_reaction(self,
-                          comma_separated_keywords: str,
-                          reactions: Tuple[str, ...]):
+    def add_text_reaction(
+        self, comma_separated_keywords: str, reactions: Tuple[str, ...]
+    ):
         keywords = tuple(map(str.strip, comma_separated_keywords.split(",")))
         self.text_reactions[keywords] = reactions
 
@@ -192,7 +204,7 @@ def run(token: str):
 def run_cli():
     if len(sys.argv) != 2:
         basename = os.path.basename(sys.argv[0])
-        print(f'Usage: {basename} <token>')
+        print(f"Usage: {basename} <token>")
         sys.exit(1)
     token = sys.argv[1]
     run(token)

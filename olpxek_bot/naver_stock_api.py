@@ -23,8 +23,8 @@ class NaverStockMetadata:
     is_global: bool = field(init=False)
 
     def __post_init__(self):
-        self.is_etf = 'etf' in self.url
-        self.is_global = self.stock_exchange_name not in ['코스피', '코스닥']
+        self.is_etf = "etf" in self.url
+        self.is_global = self.stock_exchange_name not in ["코스피", "코스닥"]
 
 
 @dataclass
@@ -44,21 +44,21 @@ class NaverStockData:
     url: str = field(init=False)
 
     def __post_init__(self):
-        if self.compare_price[0] != '-':
-            self.compare_price = '🔺' + self.compare_price
-        if self.compare_ratio[0] != '-':
-            self.compare_ratio = '🔺' + self.compare_ratio
-        self.compare_ratio += '%'
+        if self.compare_price[0] != "-":
+            self.compare_price = "🔺" + self.compare_price
+        if self.compare_ratio[0] != "-":
+            self.compare_ratio = "🔺" + self.compare_ratio
+        self.compare_ratio += "%"
 
         # NOTE: 국내 주식 정보와 해외 주식 정보의 데이터 양식이 다르다
-        if 'day' in self.image_charts:
-            self.day_graph_url = self.image_charts['day']
+        if "day" in self.image_charts:
+            self.day_graph_url = self.image_charts["day"]
         else:
-            self.day_graph_url = self.image_charts['1일']
-        if 'candleMonth' in self.image_charts:
-            self.candle_graph_url = self.image_charts['candleMonth']
+            self.day_graph_url = self.image_charts["1일"]
+        if "candleMonth" in self.image_charts:
+            self.candle_graph_url = self.image_charts["candleMonth"]
         else:
-            self.candle_graph_url = self.image_charts['일봉']
+            self.candle_graph_url = self.image_charts["일봉"]
 
 
 class NaverStockAPIResponse(TypedDict):
@@ -89,26 +89,25 @@ class NaverStockAPIParser(metaclass=ABCMeta):
 
     @classmethod
     def api_response_to_stock_data(
-        cls,
-        response: NaverStockAPIResponse
+        cls, response: NaverStockAPIResponse
     ) -> NaverStockData:
         total_infos = {}  # type: Dict[str, str]
-        for total_info in response['stockItemTotalInfos']:
-            total_infos[total_info['key']] = total_info['value']
+        for total_info in response["stockItemTotalInfos"]:
+            total_infos[total_info["key"]] = total_info["value"]
             # code, key, value[,
             #   compareToPreviousPrice[code(2,5), text(상승,하락), name]]
 
         return NaverStockData(
-            response['stockName'],
-            response['stockNameEng'],
-            response['symbolCode'],
-            response['closePrice'],
-            response['stockExchangeType']['name'],
-            response['compareToPreviousClosePrice'],
-            response['fluctuationsRatio'],
+            response["stockName"],
+            response["stockNameEng"],
+            response["symbolCode"],
+            response["closePrice"],
+            response["stockExchangeType"]["name"],
+            response["compareToPreviousClosePrice"],
+            response["fluctuationsRatio"],
             total_infos,
-            response['imageChartTypes'],
-            response['imageCharts']
+            response["imageChartTypes"],
+            response["imageCharts"],
         )
 
 
@@ -117,8 +116,9 @@ class NaverStockAPIGlobalETFParser(NaverStockAPIParser):
         json_dict = None
         async with httpx.AsyncClient() as client:
             r = await client.get(
-                f'https://api.stock.naver.com/etf/'
-                f'{self.metadata.reuters_code}/basic')
+                f"https://api.stock.naver.com/etf/"
+                f"{self.metadata.reuters_code}/basic"
+            )
             json_dict = r.json()
         return self.api_response_to_stock_data(json_dict)
 
@@ -128,8 +128,9 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
         json_dict = None
         async with httpx.AsyncClient() as client:
             r = await client.get(
-                f'https://api.stock.naver.com/stock/'
-                f'{self.metadata.reuters_code}/basic')
+                f"https://api.stock.naver.com/stock/"
+                f"{self.metadata.reuters_code}/basic"
+            )
             json_dict = r.json()
         return self.api_response_to_stock_data(json_dict)
 
@@ -139,38 +140,47 @@ class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
         code = self.metadata.symbol_code
         async with httpx.AsyncClient() as client:
             r = await client.get(
-                'https://m.stock.naver.com/api/item/getOverallHeaderItem.nhn'
-                f'?code={code}')
-            header_json = r.json()['result']
+                "https://m.stock.naver.com/api/item/getOverallHeaderItem.nhn"
+                f"?code={code}"
+            )
+            header_json = r.json()["result"]
 
         async with httpx.AsyncClient() as client:
             r = await client.get(
-                'https://m.stock.naver.com/api/html/item/getOverallInfo.nhn'
-                f'?code={code}')
+                "https://m.stock.naver.com/api/html/item/getOverallInfo.nhn"
+                f"?code={code}"
+            )
             html = r.text
 
-        name = header_json['nm']
-        time = header_json['time']
-        symbol_code = header_json['cd']
+        name = header_json["nm"]
+        time = header_json["time"]
+        symbol_code = header_json["cd"]
         close_price = f'{header_json["nv"]:,}'
         compare_price = f'{header_json["cv"]:,}'
         compare_ratio = f'{header_json["cr"]:,}'
         stock_exchange_name = self.metadata.stock_exchange_name
 
-        soup = BeautifulSoup(html, 'html.parser')
-        total_info_lis = soup.select('ul.total_lst > li')
+        soup = BeautifulSoup(html, "html.parser")
+        total_info_lis = soup.select("ul.total_lst > li")
         total_infos = {
-            li.find('div').text.strip(): li.find('span').text.strip()
-            for li in total_info_lis}
+            li.find("div").text.strip(): li.find("span").text.strip()
+            for li in total_info_lis
+        }
 
-        image_chart_types = [li.find('span').text.strip()
-                             for li in soup.select('ul.lnb_lst > li')]
+        image_chart_types = [
+            li.find("span").text.strip()
+            for li in soup.select("ul.lnb_lst > li")
+        ]
         # 클라이언트에서 이미지 캐시되는 것을 막기 위해
         # 유효하지 않지만 URL 뒤에 '?time' 인자를 덧붙인다
-        charts = [img.attrs['data-src'] + f'?{time}'
-                  for img in soup.select('div.flick-ct * > img')]
-        image_charts = {img_type: chart
-                        for img_type, chart in zip(image_chart_types, charts)}
+        charts = [
+            img.attrs["data-src"] + f"?{time}"
+            for img in soup.select("div.flick-ct * > img")
+        ]
+        image_charts = {
+            img_type: chart
+            for img_type, chart in zip(image_chart_types, charts)
+        }
         return NaverStockData(
             name,
             None,
@@ -181,7 +191,7 @@ class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
             compare_ratio,
             total_infos,
             image_chart_types,
-            image_charts
+            image_charts,
         )
 
 
@@ -205,19 +215,23 @@ class NaverStockAPI(object):
     @classmethod
     @cached(LRUCache(maxsize=20))
     async def get_metadata(cls, query: str) -> NaverStockMetadata:
-        url_tmpl = 'https://ac.finance.naver.com/ac?q={query}&q_enc=euc-kr&t_koreng=1&st=111&r_lt=111'  # noqa: E501
+        url_tmpl = "https://ac.finance.naver.com/ac?q={query}&q_enc=euc-kr&t_koreng=1&st=111&r_lt=111"  # noqa: E501
         async with httpx.AsyncClient() as client:
             r = await client.get(url_tmpl.format(query=query))
             try:
                 json_dict = r.json()
-                first_item = json_dict['items'][0][0]
+                first_item = json_dict["items"][0][0]
             except IndexError:
                 raise InvalidStockQuery(json_dict)
             symbol_code, display_name, market, url, reuters_code = first_item
             # NOTE: 모든 값이 list로 감싸져있다
-        return NaverStockMetadata(symbol_code[0], display_name[0], market[0],
-                                  f'https://m.stock.naver.com{url[0]}',
-                                  reuters_code[0])
+        return NaverStockMetadata(
+            symbol_code[0],
+            display_name[0],
+            market[0],
+            f"https://m.stock.naver.com{url[0]}",
+            reuters_code[0],
+        )
 
     def __init__(self, metadata: NaverStockMetadata):
         self.metadata = metadata
