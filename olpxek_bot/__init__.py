@@ -18,7 +18,7 @@ from olpxek_bot.stock import get_finviz_map_capture
 # logger.setLevel(logging.DEBUG)
 
 
-class MyBot(commands.Cog):
+class OlpxekBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.text_reactions = {}  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
@@ -179,7 +179,7 @@ class MyBot(commands.Cog):
 
 def run(token: str):
     bot = commands.Bot(command_prefix="!")
-    mybot = MyBot(bot)
+    mybot = OlpxekBot(bot)
     mybot.add_text_reaction(
         "아니야?, 아닌가, 아닐걸, 아닐껄, 아냐?, 아닙니까, 그런가, 아님?, 아닌가요, 아닌가여, 실화냐, 실화입니까, 합니까, 됩니까?, 됩니까",  # noqa: E501
         ("응 아니야", "응 맞아", "아닐걸", "맞을걸"),
