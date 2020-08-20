@@ -37,10 +37,8 @@ class NaverStockData:
     compare_price: str
     compare_ratio: str
     total_infos: Dict[str, str]  # TODO: ETF랑 Stock이랑 별도로 정의하면 좋겠다
-    image_chart_types: List[str]
-    image_charts: Dict[str, str]
-    day_graph_url: str = field(init=False)
-    candle_graph_url: str = field(init=False)
+    day_graph_url: str
+    candle_graph_url: str
     url: str = field(init=False)
 
     def __post_init__(self):
@@ -49,16 +47,6 @@ class NaverStockData:
         if self.compare_ratio[0] != "-":
             self.compare_ratio = "🔺" + self.compare_ratio
         self.compare_ratio += "%"
-
-        # NOTE: 국내 주식 정보와 해외 주식 정보의 데이터 양식이 다르다
-        if "day" in self.image_charts:
-            self.day_graph_url = self.image_charts["day"]
-        else:
-            self.day_graph_url = self.image_charts["1일"]
-        if "candleMonth" in self.image_charts:
-            self.candle_graph_url = self.image_charts["candleMonth"]
-        else:
-            self.candle_graph_url = self.image_charts["일봉"]
 
 
 class NaverStockAPIResponse(TypedDict):
@@ -113,6 +101,7 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
             total_infos[total_info["key"]] = total_info["value"]
             # code, key, value[,
             #   compareToPreviousPrice[code(2,5), text(상승,하락), name]]
+        image_charts = response["imageCharts"]
 
         return NaverStockData(
             response["stockName"],
@@ -123,8 +112,8 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
             response["compareToPreviousClosePrice"],
             response["fluctuationsRatio"],
             total_infos,
-            response["imageChartTypes"],
-            response["imageCharts"],
+            image_charts["day"],
+            image_charts["candleMonth"],
         )
 
 
@@ -183,8 +172,8 @@ class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
             compare_price,
             compare_ratio,
             total_infos,
-            image_chart_types,
-            image_charts,
+            image_charts["1일"],
+            image_charts["일봉"],
         )
 
 
