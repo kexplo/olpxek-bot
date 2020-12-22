@@ -173,4 +173,6 @@ pip-selfcheck.json
 
 # End of https://www.toptal.com/developers/gitignore/api/vim,python,virtualenv
 
-/setup.py  # use pyproject.toml
+# use pyproject.toml
+/setup.py
+poetry.lock
