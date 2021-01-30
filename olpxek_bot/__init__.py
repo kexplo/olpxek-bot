@@ -141,14 +141,18 @@ class OlpxekBot(commands.Cog):
         else:
             title = f"{stock_data.name} ({stock_data.name_eng})"
 
+        market_value_str = ""
+        if stock_data.market_value:
+            market_value_str = f" / 시총: {stock_data.market_value}"
+
         embed = discord.Embed(
             title=title,
             url=stock_data.url,
             description=(
                 f"{stock_data.symbol_code} "
-                f"({stock_data.stock_exchange_name})\n\n"
+                f"({stock_data.stock_exchange_name}){market_value_str}\n\n"
                 f"**{stock_data.close_price}**\n"
-                f"{stock_data.compare_price}  "
+                f"전일비: {stock_data.compare_price}  "
                 f"{stock_data.compare_ratio}\n----------"
             ),
             colour=discord.Color.blue(),

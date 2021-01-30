@@ -33,6 +33,7 @@ class NaverStockData:
     name_eng: Optional[str]
     symbol_code: str
     close_price: str
+    market_value: Optional[str]
     stock_exchange_name: str
     compare_price: str
     compare_ratio: str
@@ -97,8 +98,11 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
         cls, response: NaverStockAPIResponse
     ) -> NaverStockData:
         total_infos: Dict[str, Optional[str]] = {}
+        market_value: Optional[str] = None
         for total_info in response["stockItemTotalInfos"]:
             total_infos[total_info["key"]] = total_info.get("value")
+            if total_info.get("code") == "marketValue":
+                market_value = total_info.get("value")
             # code, key, value[,
             #   compareToPreviousPrice[code(2,5), text(상승,하락), name]]
         image_charts = response["imageCharts"]
@@ -108,6 +112,7 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
             response["stockNameEng"],
             response["symbolCode"],
             response["closePrice"],
+            market_value,
             response["stockExchangeType"]["name"],
             response["compareToPreviousClosePrice"],
             response["fluctuationsRatio"],
@@ -143,7 +148,7 @@ class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
         stock_exchange_name = self.metadata.stock_exchange_name
 
         soup = BeautifulSoup(html, "html.parser")
-        total_info_lis = soup.select("ul.total_lst > li")
+        total_info_lis = soup.select("ul.total_list > li")
         total_infos = {
             li.find("div").text.strip(): li.find("span").text.strip()
             for li in total_info_lis
@@ -168,6 +173,7 @@ class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
             None,
             symbol_code,
             close_price,
+            total_infos.get("시총"),
             stock_exchange_name,
             compare_price,
             compare_ratio,
