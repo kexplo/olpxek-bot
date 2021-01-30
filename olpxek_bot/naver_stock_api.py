@@ -36,7 +36,7 @@ class NaverStockData:
     stock_exchange_name: str
     compare_price: str
     compare_ratio: str
-    total_infos: Dict[str, str]  # TODO: ETF랑 Stock이랑 별도로 정의하면 좋겠다
+    total_infos: Dict[str, Optional[str]]  # TODO: ETF랑 Stock이랑 별도로 정의하면 좋겠다
     day_graph_url: str
     candle_graph_url: str
     url: str = field(init=False)
@@ -96,9 +96,9 @@ class NaverStockAPIGlobalStockParser(NaverStockAPIParser):
     def api_response_to_stock_data(
         cls, response: NaverStockAPIResponse
     ) -> NaverStockData:
-        total_infos = {}  # type: Dict[str, str]
+        total_infos: Dict[str, Optional[str]] = {}
         for total_info in response["stockItemTotalInfos"]:
-            total_infos[total_info["key"]] = total_info["value"]
+            total_infos[total_info["key"]] = total_info.get("value")
             # code, key, value[,
             #   compareToPreviousPrice[code(2,5), text(상승,하락), name]]
         image_charts = response["imageCharts"]
