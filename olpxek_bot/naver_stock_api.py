@@ -74,6 +74,8 @@ class NaverStockAPIParser(metaclass=ABCMeta):
     async def get_stock_data(self) -> NaverStockData:
         stock_data = await self._get_stock_data_impl()
         stock_data.url = self.metadata.url
+        # workaround for broken korea stock market link
+        stock_data.url = stock_data.url.replace('main.nhn', 'index.nhn')
         return stock_data
 
 
