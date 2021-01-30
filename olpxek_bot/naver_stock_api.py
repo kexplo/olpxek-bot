@@ -177,7 +177,7 @@ class NaverStockAPIKoreaStockParser(NaverStockAPIParser):
         )
 
 
-class NaverStockAPIParserFactory(object):
+class NaverStockAPIParserFactory:
     @classmethod
     def from_metadata(cls, stock_metadata: NaverStockMetadata):
         if stock_metadata.is_global:
@@ -186,7 +186,7 @@ class NaverStockAPIParserFactory(object):
         return NaverStockAPIKoreaStockParser(stock_metadata)
 
 
-class NaverStockAPI(object):
+class NaverStockAPI:
     @classmethod
     async def from_query(cls, query: str):
         metadata = await cls.get_metadata(query)
