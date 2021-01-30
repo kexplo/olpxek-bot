@@ -130,7 +130,7 @@ class OlpxekBot(commands.Cog):
 
         show_total_infos = False
         if len(args) == 2:
-            if args[1].lower() in ["-f", "--full", "full", "f"]:
+            if args[1].lower() in ["-v", "--verbose", "verbose", "v"]:
                 show_total_infos = True
         query = args[0]
 
@@ -158,7 +158,7 @@ class OlpxekBot(commands.Cog):
                 embed.add_field(name=k, value=v)
         else:
             embed.add_field(
-                name="종합 정보", value="두 번째 인자로 `-f`를 추가하세요"
+                name="종합 정보", value="두 번째 인자로 `-v`를 추가하세요"
             )  # fmt: off
         embed.set_footer(text="powered by NAVER stock")
         embed.set_image(url=stock_data.day_graph_url)
