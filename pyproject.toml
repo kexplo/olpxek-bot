@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-"discord.py" = "^1.4.0"
+"discord.py" = "^1.6.0"
 RestrictedPython = "^5.0"
 playwright = "^0.7.1"
 httpx = "^0.14.1"
