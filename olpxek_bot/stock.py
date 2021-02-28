@@ -1,12 +1,8 @@
 from asyncache import cached
 from cachetools import TTLCache
-import httpx
+from juga import NaverStockAPI
 from playwright import async_playwright
 
-from olpxek_bot.naver_stock_api import (
-    NaverStockAPI,
-    NaverStockData,
-)
 
 # 'python -m playwright install'이 필요하다
 
@@ -38,24 +34,5 @@ async def get_finviz_map_capture() -> bytes:
     return screenshot
 
 
-async def get_stock_day_graph_png(query: str) -> bytes:
-    api = await NaverStockAPI.from_query(query)
-    stock_data = await api.get_stock_data()
-    url = stock_data.day_graph_url
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url)
-        return r.content
 
 
-async def get_stock_candle_graph_png(query: str) -> bytes:
-    api = await NaverStockAPI.from_query(query)
-    stock_data = await api.get_stock_data()
-    url = stock_data.candle_graph_url
-    async with httpx.AsyncClient() as client:
-        r = await client.get(url)
-        return r.content
-
-
-async def get_stock_data(query: str) -> NaverStockData:
-    api = await NaverStockAPI.from_query(query)
-    return await api.get_stock_data()
