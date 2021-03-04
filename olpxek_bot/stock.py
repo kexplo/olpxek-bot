@@ -13,7 +13,6 @@ async def get_finviz_map_capture() -> bytes:
         browser = await p.chromium.launch()
         page = await browser.newPage(viewport={"width": 1280, "height": 900})
         await page.goto("https://finviz.com/map.ashx")
-        await page.screenshot(path="test.png")
         # chart를 감싸는 div#body의 크기가 chart보다 작다.
         # canvas.chart에 margin left,right 가 16이므로 32만큼 더해준다
         # 차트 밑에 info box도 포함할 수 있도록 height도 42만큼 더해준다
