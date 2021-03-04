@@ -1,13 +1,22 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
 from discord.ext import commands
 
 from olpxek_bot.olpxekbot import OlpxekBot
 
 
+_default_help_cmd = commands.DefaultHelpCommand()
+
+
 class Runner:
-    def __init__(self, command_prefix: str = "!"):
-        self.discord_bot = commands.Bot(command_prefix=command_prefix)
+    def __init__(
+        self,
+        command_prefix: str = "!",
+        help_command: Optional[commands.HelpCommand] = _default_help_cmd,
+    ):
+        self.discord_bot = commands.Bot(
+            command_prefix=command_prefix, help_command=help_command
+        )
         self.olpxekbot = OlpxekBot(self.discord_bot)
         self.discord_bot.add_cog(self.olpxekbot)
 
