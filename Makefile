@@ -14,7 +14,7 @@ test: poetry.lock
 
 lint: poetry.lock
 	poetry run black --line-length=79 --check --diff $(CODE)
-	flake8 olpxek_bot --count --show-source --statistics
+	poetry run flake8 olpxek_bot --count --show-source --statistics
 
 format: poetry.lock
 	poetry run black --line-length=79 $(CODE)
