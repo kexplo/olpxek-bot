@@ -2,4 +2,4 @@
 
 ![olpxek bot](olpxek.png)
 
-Kexplo's unconscious.
+[@Kexplo](https://github.com/kexplo)'s unconscious.
