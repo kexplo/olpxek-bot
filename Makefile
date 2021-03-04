@@ -2,18 +2,22 @@
 
 CODE = olpxek_bot
 
+poetry.lock:
+	$(MAKE) init
+
 init:
 	poetry install
 	poetry run python -m playwright install
 
-test:
+test: poetry.lock
 	poetry run pytest
 
-lint:
+lint: poetry.lock
 	poetry run black --line-length=79 --check --diff $(CODE)
+	flake8 olpxek_bot --count --show-source --statistics
 
-format:
+format: poetry.lock
 	poetry run black --line-length=79 $(CODE)
 
-build:
+build: poetry.lock
 	poetry build
