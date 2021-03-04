@@ -19,7 +19,6 @@ juga = {git = "https://github.com/kexplo/juga", rev = "525dc15"}
 ptpython = "^3.0.3"
 mypy = "^0.782"
 black = "^19.10b0"
-dephell = "^0.8.3"
 flake8-import-order = "^0.18.1"
 pep8-naming = "^0.11.1"
 flake8-pytest-style = "^1.2.3"
@@ -31,10 +30,6 @@ flake8-bandit = "^2.1.2"
 
 [tool.poetry.scripts]
 olpxek_bot = 'olpxek_bot.__init__:run_cli'
-
-[tool.dephell.main]
-from = {format = "poetry", path = "pyproject.toml"}
-to = {format = "setuppy", path = "setup.py"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

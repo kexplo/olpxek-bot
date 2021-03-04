@@ -16,4 +16,4 @@ format:
 	poetry run black --line-length=79 $(CODE)
 
 build:
-	dephell deps convert
+	poetry build
