@@ -1,5 +1,4 @@
-import os
-import sys
+import typer
 
 from olpxek_bot.runner import Runner
 
@@ -8,6 +7,10 @@ from olpxek_bot.runner import Runner
 # logger.setLevel(logging.DEBUG)
 
 
+app = typer.Typer()
+
+
+@app.command()
 def run(token: str):
     runner = Runner(command_prefix="!")
     runner.update_text_reactions(
@@ -18,10 +21,5 @@ def run(token: str):
     runner.run(token)
 
 
-def run_cli():
-    if len(sys.argv) != 2:
-        basename = os.path.basename(sys.argv[0])
-        print(f"Usage: {basename} <token>")
-        sys.exit(1)
-    token = sys.argv[1]
-    run(token)
+if __name__ == "__main__":
+    app()
