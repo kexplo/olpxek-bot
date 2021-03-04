@@ -54,7 +54,9 @@ class OlpxekBot(commands.Cog):
         if roll_count <= 0 or faces <= 0:
             return await ctx.message.add_reaction(self.cached_emojis["_x"])
 
-        rolled_numbers = [random.randint(1, faces) for x in range(roll_count)]
+        rolled_numbers = [
+            random.randint(1, faces) for x in range(roll_count)  # noqa: S311
+        ]
         result_str = ", ".join(map(str, rolled_numbers))
         await ctx.send(f"{arg} 결과: {result_str}")
 
