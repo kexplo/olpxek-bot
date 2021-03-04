@@ -32,7 +32,3 @@ async def get_finviz_map_capture() -> bytes:
         screenshot = await chart_element.screenshot(type="png")
         await browser.close()
     return screenshot
-
-
-
-
