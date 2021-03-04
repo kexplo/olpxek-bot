@@ -1,5 +1,4 @@
 import asyncio
-import concurrent.futures
 import io
 import random
 from typing import Dict, Tuple
@@ -8,7 +7,6 @@ import discord
 from discord.ext import commands
 from juga import NaverStockAPI
 
-from olpxek_bot.eval_py import eval_py
 from olpxek_bot.stock import get_finviz_map_capture
 
 
@@ -59,22 +57,6 @@ class OlpxekBot(commands.Cog):
         ]
         result_str = ", ".join(map(str, rolled_numbers))
         await ctx.send(f"{arg} 결과: {result_str}")
-
-    @commands.command()
-    async def py(self, ctx, *, arg):
-        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as pool:
-            future = pool.submit(eval_py, arg)
-            try:
-                result = future.result(timeout=1.0)
-            except concurrent.futures.TimeoutError:
-                print("py TimeoutError")
-                for pid, process in pool._processes.items():
-                    print(f"kill pid: {pid}")
-                    process.kill()
-                print("pool.shutdown")
-                pool.shutdown(wait=True)
-                return await ctx.send("TimeoutError")
-            return await ctx.send(result)
 
     @commands.command(aliases=("골라", "뽑아", "뽑기"))
     async def choice(self, ctx, *args):

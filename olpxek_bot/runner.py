@@ -2,6 +2,7 @@ from typing import Optional, Tuple
 
 from discord.ext import commands
 
+from olpxek_bot.cogs import PyCog
 from olpxek_bot.olpxekbot import OlpxekBot
 
 
@@ -19,6 +20,7 @@ class Runner:
         )
         self.olpxekbot = OlpxekBot(self.discord_bot)
         self.discord_bot.add_cog(self.olpxekbot)
+        self._pycog: Optional[PyCog] = None
 
     def update_text_reactions(
         self, comma_separated_keywords: str, reactions: Tuple[str, ...]
@@ -29,6 +31,11 @@ class Runner:
 
     def add_cog(self, cog: commands.Cog):
         self.discord_bot.add_cog(cog)
+
+    def add_pycog(self):
+        if self._pycog is None:
+            self._pycog = PyCog()
+            self.discord_bot.add_cog(self._pycog)
 
     def run(self, token: str):
         self.discord_bot.run(token)
