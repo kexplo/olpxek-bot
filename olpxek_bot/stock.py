@@ -1,6 +1,5 @@
 from asyncache import cached
 from cachetools import TTLCache
-from juga import NaverStockAPI
 from playwright import async_playwright
 
 
