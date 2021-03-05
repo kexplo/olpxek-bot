@@ -3,10 +3,12 @@ from typing import Optional, Tuple
 from discord.ext import commands
 
 from olpxek_bot.cogs import PyCog
+from olpxek_bot.config import ConfigLoader, DefaultConfig
 from olpxek_bot.olpxekbot import OlpxekBot
 
 
 _default_help_cmd = commands.DefaultHelpCommand()
+_default_config_loader = ConfigLoader()
 
 
 class Runner:
@@ -14,13 +16,22 @@ class Runner:
         self,
         command_prefix: str = "!",
         help_command: Optional[commands.HelpCommand] = _default_help_cmd,
+        config_loader: ConfigLoader = _default_config_loader,
     ):
+        self.try_load_config(config_loader)
         self.discord_bot = commands.Bot(
             command_prefix=command_prefix, help_command=help_command
         )
         self.olpxekbot = OlpxekBot(self.discord_bot)
         self.discord_bot.add_cog(self.olpxekbot)
         self._pycog: Optional[PyCog] = None
+
+    def try_load_config(self, config_loader: ConfigLoader):
+        try:
+            config = config_loader.load_config()
+        except FileNotFoundError:
+            config = config_loader.default_config()
+        self.config: DefaultConfig = config
 
     def update_text_reactions(
         self, comma_separated_keywords: str, reactions: Tuple[str, ...]
