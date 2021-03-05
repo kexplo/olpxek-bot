@@ -15,8 +15,11 @@ class DefaultConfig:
 
 
 class ConfigLoader:
-    def __init__(self, config_filename: str = "config.yaml",
-                 config_cls: Type[DefaultConfig] = DefaultConfig) -> None:
+    def __init__(
+        self,
+        config_filename: str = "config.yaml",
+        config_cls: Type[DefaultConfig] = DefaultConfig,
+    ) -> None:
         self.config_filename = config_filename
         self.config_cls = config_cls
 
