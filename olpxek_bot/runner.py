@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 
 from discord.ext import commands
+import sentry_sdk
 
 from olpxek_bot.cogs import PyCog
 from olpxek_bot.config import ConfigLoader, DefaultConfig
@@ -19,6 +20,7 @@ class Runner:
         config_loader: ConfigLoader = _default_config_loader,
     ):
         self.try_load_config(config_loader)
+        self.setup_sentry()
         self.discord_bot = commands.Bot(
             command_prefix=command_prefix, help_command=help_command
         )
@@ -32,6 +34,15 @@ class Runner:
         except FileNotFoundError:
             config = config_loader.default_config()
         self.config: DefaultConfig = config
+
+    def setup_sentry(self, dsn: Optional[str] = None):
+        _dsn = None
+        if dsn is not None:
+            _dsn = dsn
+        elif self.config.sentry is not None:
+            _dsn = self.config.sentry.dsn
+        if _dsn is not None:
+            sentry_sdk.init(_dsn, traces_sample_rate=1.0)
 
     def update_text_reactions(
         self, comma_separated_keywords: str, reactions: Tuple[str, ...]
