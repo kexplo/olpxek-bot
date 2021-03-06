@@ -6,6 +6,7 @@ from discord.ext import commands
 from juga import NaverStockAPI
 
 from olpxek_bot.finviz import get_finviz_map_capture
+from olpxek_bot.upbit import fetch_price
 
 
 class FinanceCog(commands.Cog):
@@ -95,4 +96,19 @@ class FinanceCog(commands.Cog):
             embed.set_image(url=graph_by_option.get(graph_option))
         else:
             embed.set_image(url=stock_data.graph_urls.day)
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases=("코인", "cc"))
+    async def crypto(self, ctx, ticker):
+        price = await fetch_price(ticker)
+        embed = discord.Embed(
+            title=f"{price.kr_name} {price.ticker}",
+            url=f"https://www.upbit.com/exchange?code=CRIX.UPBIT.{price.ticker}",  # noqa: E501
+            colour=discord.Color.blue(),
+        )
+        embed.add_field(
+            name=price.trade_price,
+            value=f"{price.signed_change_price} ({price.signed_change_rate}%)",
+        )
+        embed.set_footer(text="powered by Upbit")
         await ctx.send(embed=embed)
