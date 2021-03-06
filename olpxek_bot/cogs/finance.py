@@ -107,8 +107,8 @@ class FinanceCog(commands.Cog):
             colour=discord.Color.blue(),
         )
         embed.add_field(
-            name=f"{price.trade_price} {price.currency_code}",
-            value=f"{price.signed_change_price} ({price.signed_change_rate}%)",
+            name=f"{price.trade_price:,} {price.currency_code}",
+            value=f"{price.signed_change_price:,} ({price.signed_change_rate}%)",  # noqa: E501
         )
         embed.set_footer(text="powered by Upbit")
         await ctx.send(embed=embed)
