@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 from juga import NaverStockAPI
 
-from olpxek_bot.stock import get_finviz_map_capture
+from olpxek_bot.finviz import get_finviz_map_capture
 
 
 class FinanceCog(commands.Cog):
