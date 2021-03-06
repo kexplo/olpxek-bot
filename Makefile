@@ -10,7 +10,7 @@ init:
 	poetry run python -m playwright install
 
 test: poetry.lock
-	poetry run pytest
+	poetry run pytest -vv
 
 lint: poetry.lock
 	poetry run black --line-length=79 --check --diff $(CODE)
