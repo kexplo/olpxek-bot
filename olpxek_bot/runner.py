@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from discord.ext import commands
 import sentry_sdk
 
-from olpxek_bot.cogs import PyCog
+from olpxek_bot.cogs import FinanceCog, PyCog
 from olpxek_bot.config import ConfigLoader, DefaultConfig
 from olpxek_bot.olpxekbot import OlpxekBot
 
@@ -25,7 +25,9 @@ class Runner:
             command_prefix=command_prefix, help_command=help_command
         )
         self.olpxekbot = OlpxekBot(self.discord_bot)
+        # add built-in cogs
         self.discord_bot.add_cog(self.olpxekbot)
+        self.discord_bot.add_cog(FinanceCog())
         self._pycog: Optional[PyCog] = None
 
     def try_load_config(self, config_loader: ConfigLoader):
