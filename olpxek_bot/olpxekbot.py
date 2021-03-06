@@ -10,14 +10,24 @@ from juga import NaverStockAPI
 from olpxek_bot.stock import get_finviz_map_capture
 
 
+# a check that disables private messages except the owners
+async def owner_or_guild_only(ctx):
+    is_owner = await ctx.bot.is_owner(ctx.author)
+    if not is_owner and ctx.guild is None:
+        raise commands.NoPrivateMessage()
+    return True
+
+
 class OlpxekBot(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.text_reactions = (
             {}
         )  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
         self.cached_emojis = {}  # type: Dict[str, discord.Emoji]
         self.finviz_cmd_lock = asyncio.Lock()
+        # disable pm
+        bot.add_check(owner_or_guild_only)
 
     def _bot_init(self):
         self._cache_emojis(self.bot)
