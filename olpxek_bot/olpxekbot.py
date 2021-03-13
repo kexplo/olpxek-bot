@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 
 import discord
 from discord.ext import commands
+from sentry_sdk import capture_exception
 
 
 # a check that disables private messages except the owners
@@ -75,6 +76,10 @@ class OlpxekBot(commands.Cog):
         items = list(args)
         random.shuffle(items)
         await ctx.send(" ".join(items))
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        capture_exception(error)
 
     @commands.Cog.listener()
     async def on_ready(self):
