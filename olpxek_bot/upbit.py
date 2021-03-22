@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, cast, Dict, List, Tuple, Union
+from typing import Any, cast, Dict, List, Literal, Tuple, Union
 
 import aiohttp
 from asyncache import cached
@@ -82,3 +82,26 @@ async def fetch_price(ticker: str) -> CryptoPrice:
         signed_change_price,
         signed_change_rate,
     )
+
+
+async def fetch_candles(
+    ticker: str, minutes: Literal[1, 3, 5, 10, 30, 60], count: int
+) -> List[Dict[str, Union[str, float, int]]]:
+    # TODO: to utility function
+    tickers = await get_tickers()
+    ticker = ticker.upper()
+    if "-" not in ticker:
+        ticker = "KRW-" + ticker
+        # there is no KRW market
+        if ticker not in tickers:
+            ticker = "BTC-" + ticker
+
+    if count > 200:
+        count = 200
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"https://api.upbit.com/v1/candles/minutes/{minutes}?market={ticker}&count={count}",  # noqa: E501
+            headers={"Accept-Encoding": "gzip"},
+        ) as resp:
+            return await resp.json()

@@ -5,8 +5,9 @@ import discord
 from discord.ext import commands
 from juga import NaverStockAPI
 
+from olpxek_bot.charts import draw_upbit_chart
 from olpxek_bot.finviz import get_finviz_map_capture
-from olpxek_bot.upbit import fetch_price
+from olpxek_bot.upbit import fetch_candles, fetch_price
 
 
 class FinanceCog(commands.Cog):
@@ -111,4 +112,11 @@ class FinanceCog(commands.Cog):
             value=f"{price.signed_change_price:,} ({price.signed_change_rate}%)",  # noqa: E501
         )
         embed.set_footer(text="powered by Upbit")
-        await ctx.send(embed=embed)
+
+        candles = await fetch_candles(ticker, 60, 100)
+        with io.BytesIO() as buf:
+            draw_upbit_chart(candles, buf)
+            buf.seek(0)
+            await ctx.send(
+                embed=embed, file=discord.File(buf, filename="chart.png")
+            )
