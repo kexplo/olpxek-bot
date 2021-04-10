@@ -6,13 +6,24 @@ from discord.ext import commands
 from juga import NaverStockAPI
 
 from olpxek_bot.charts import draw_upbit_chart
+from olpxek_bot.config import DefaultConfig
 from olpxek_bot.finviz import get_finviz_map_capture
+from olpxek_bot.kimp import KimpCalculator
 from olpxek_bot.upbit import fetch_candles, fetch_price
 
 
 class FinanceCog(commands.Cog):
-    def __init__(self):
+    def __init__(self, config: DefaultConfig):
         self.finviz_cmd_lock = asyncio.Lock()
+        self.init_kimp(config)
+
+    def init_kimp(self, config: DefaultConfig):
+        self.kimp = None
+        if config.kimp is not None:
+            self.kimp = KimpCalculator(
+                config.kimp.exchange_rate_api_url,
+                config.kimp.exchange_rate_result_ref_key,
+            )
 
     @commands.command()
     async def finviz(self, ctx):
@@ -107,9 +118,18 @@ class FinanceCog(commands.Cog):
             url=f"https://www.upbit.com/exchange?code=CRIX.UPBIT.{price.ticker}",  # noqa: E501
             colour=discord.Color.blue(),
         )
+
+        kimp_str = ""
+        if price.ticker == "KRW-BTC" and self.kimp is not None:
+            kimp_percent = await self.kimp.calc_percent(price.trade_price)
+            kimp_str = f"\n김프: {kimp_percent}%"
+
         embed.add_field(
             name=f"{price.trade_price:,} {price.currency_code}",
-            value=f"{price.signed_change_price:,} ({price.signed_change_rate}%)",  # noqa: E501
+            value=(
+                f"{price.signed_change_price:,} ({price.signed_change_rate}%)"
+                f"{kimp_str}"
+            ),
         )
         embed.set_footer(text="powered by Upbit")
 
@@ -120,3 +140,11 @@ class FinanceCog(commands.Cog):
             await ctx.send(
                 embed=embed, file=discord.File(buf, filename="chart.png")
             )
+
+    @commands.command(aliases=("김프",))
+    async def kimp(self, ctx):
+        if self.kimp is None:
+            return
+        btc_krw_price = await fetch_price("KRW-BTC")
+        kimp_percent = await self.kimp.calc_percent(btc_krw_price.trade_price)
+        await ctx.send(f"김프: {kimp_percent}% (Upbit <-> Binance)")

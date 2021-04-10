@@ -10,8 +10,15 @@ class Sentry:
 
 
 @dataclass
+class Kimp:
+    exchange_rate_api_url: str = MISSING
+    exchange_rate_result_ref_key: str = MISSING
+
+
+@dataclass
 class DefaultConfig:
     sentry: Optional[Sentry] = None
+    kimp: Optional[Kimp] = None
 
 
 class ConfigLoader:

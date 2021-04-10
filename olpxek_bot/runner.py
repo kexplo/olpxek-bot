@@ -27,7 +27,7 @@ class Runner:
         self.olpxekbot = OlpxekBot(self.discord_bot)
         # add built-in cogs
         self.discord_bot.add_cog(self.olpxekbot)
-        self.discord_bot.add_cog(FinanceCog())
+        self.discord_bot.add_cog(FinanceCog(self.config))
         self._pycog: Optional[PyCog] = None
 
     def try_load_config(self, config_loader: ConfigLoader):
