@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import cast, Optional, Type
+from typing import cast, Optional, Type, Union
 
-from omegaconf import MISSING, OmegaConf
+from omegaconf import DictConfig, ListConfig, MISSING, OmegaConf
 
 
 @dataclass
@@ -31,8 +31,13 @@ class ConfigLoader:
         self.config_cls = config_cls
 
     def load_config(self) -> DefaultConfig:
-        schema = OmegaConf.structured(self.config_cls)
         config = OmegaConf.load(self.config_filename)
+        return self.make_structured_config(config)
+
+    def make_structured_config(
+        self, config: Union[DictConfig, ListConfig]
+    ) -> DefaultConfig:
+        schema = OmegaConf.structured(self.config_cls)
         merged = OmegaConf.merge(schema, config)
         return cast(DefaultConfig, merged)
 
