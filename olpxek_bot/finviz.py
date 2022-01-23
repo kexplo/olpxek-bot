@@ -1,6 +1,6 @@
 from asyncache import cached
 from cachetools import TTLCache
-from playwright import async_playwright
+from playwright.async_api import async_playwright
 
 
 # 'python -m playwright install'이 필요하다
@@ -10,7 +10,7 @@ from playwright import async_playwright
 async def get_finviz_map_capture() -> bytes:
     async with async_playwright() as p:
         browser = await p.chromium.launch()
-        page = await browser.newPage(viewport={"width": 1280, "height": 900})
+        page = await browser.new_page(viewport={"width": 1280, "height": 900})
         await page.goto("https://finviz.com/map.ashx")
         # chart를 감싸는 div#body의 크기가 chart보다 작다.
         # canvas.chart에 margin left,right 가 16이므로 32만큼 더해준다
@@ -25,8 +25,9 @@ async def get_finviz_map_capture() -> bytes:
 
         }"""
         )
-        chart_element = await page.querySelector("div#body")
+        chart_element = await page.query_selector("div#body")
         # await chart_element.screenshot(path='chart.png')
         screenshot = await chart_element.screenshot(type="png")
+        await context.close()
         await browser.close()
     return screenshot
