@@ -10,7 +10,11 @@ from playwright.async_api import async_playwright
 async def get_finviz_map_capture() -> bytes:
     async with async_playwright() as p:
         browser = await p.chromium.launch()
-        page = await browser.new_page(viewport={"width": 1280, "height": 900})
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0",  # noqa: E501
+            viewport={"width": 1280, "height": 900}
+        )
+        page = await context.new_page()
         await page.goto("https://finviz.com/map.ashx")
         # chart를 감싸는 div#body의 크기가 chart보다 작다.
         # canvas.chart에 margin left,right 가 16이므로 32만큼 더해준다
