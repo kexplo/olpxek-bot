@@ -41,7 +41,7 @@ class FinanceCog(commands.Cog):
 
         # parse options
         show_total_infos = False
-        graph_option = None
+        chart_option = None
         if len(args) >= 2:
             for option in args[1:]:
                 if option.lower() in ["-v", "--verbose", "verbose", "v"]:
@@ -57,7 +57,7 @@ class FinanceCog(commands.Cog):
                     "3년",
                     "10년",
                 ]:
-                    graph_option = option
+                    chart_option = option
                     continue
         query = args[0]
 
@@ -81,7 +81,7 @@ class FinanceCog(commands.Cog):
                 f"({stock_data.stock_exchange_name}){market_value_str}\n\n"
                 f"**{stock_data.close_price}**\n"
                 f"전일비: {stock_data.compare_price}  "
-                f"{stock_data.compare_ratio}\n----------"
+                f"({stock_data.compare_ratio})\n----------"
             ),
             colour=discord.Color.blue(),
         )
@@ -94,20 +94,20 @@ class FinanceCog(commands.Cog):
             )  # fmt: off
         embed.set_footer(text="powered by NAVER stock")
 
-        graph_by_option = {
-            "일봉": stock_data.graph_urls.candle_day,
-            "주봉": stock_data.graph_urls.candle_week,
-            "월봉": stock_data.graph_urls.candle_month,
-            "1일": stock_data.graph_urls.day,
-            "3개월": stock_data.graph_urls.area_month_three,
-            "1년": stock_data.graph_urls.area_year,
-            "3년": stock_data.graph_urls.area_year_three,
-            "10년": stock_data.graph_urls.area_year_ten,
+        charts_by_option = {
+            "일봉": stock_data.chart_urls.candle_day,
+            "주봉": stock_data.chart_urls.candle_week,
+            "월봉": stock_data.chart_urls.candle_month,
+            "1일": stock_data.chart_urls.day,
+            "3개월": stock_data.chart_urls.area_month_three,
+            "1년": stock_data.chart_urls.area_year,
+            "3년": stock_data.chart_urls.area_year_three,
+            "10년": stock_data.chart_urls.area_year_ten,
         }
-        if graph_option is not None and graph_by_option.get(graph_option):
-            embed.set_image(url=graph_by_option.get(graph_option))
+        if chart_option is not None and charts_by_option.get(chart_option):
+            embed.set_image(url=charts_by_option.get(chart_option))
         else:
-            embed.set_image(url=stock_data.graph_urls.day)
+            embed.set_image(url=stock_data.chart_urls.day)
         await ctx.send(embed=embed)
 
     @commands.command(aliases=("코인", "cc"))
