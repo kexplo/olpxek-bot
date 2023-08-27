@@ -1,5 +1,8 @@
+import asyncio
+
 from typing import Optional, Tuple
 
+import discord
 from discord.ext import commands
 import sentry_sdk
 
@@ -21,13 +24,25 @@ class Runner:
     ):
         self.try_load_config(config_loader)
         self.setup_sentry()
+
+        intents = discord.Intents.default()
+        intents.messages = True
+        intents.dm_messages = True
+        intents.emojis_and_stickers = True
+        intents.reactions = True
+
         self.discord_bot = commands.Bot(
+            intents=intents,
             command_prefix=command_prefix, help_command=help_command
         )
+        self.bot_initizalized = False
+
         self.olpxekbot = OlpxekBot(self.discord_bot)
         # add built-in cogs
-        self.discord_bot.add_cog(self.olpxekbot)
-        self.discord_bot.add_cog(FinanceCog(self.config))
+        self._cogs = [
+            self.olpxekbot,
+            FinanceCog(self.config),
+        ]
         self._pycog: Optional[PyCog] = None
 
     def try_load_config(self, config_loader: ConfigLoader):
@@ -53,13 +68,25 @@ class Runner:
             comma_separated_keywords, reactions
         )
 
-    def add_cog(self, cog: commands.Cog):
-        self.discord_bot.add_cog(cog)
+    def register_cog(self, cog: commands.Cog):
+        if self.bot_initizalized:
+            raise RuntimeError("Cannot register cog after bot is initialized")
+        self._cogs.append(cog)
 
     def add_pycog(self):
         if self._pycog is None:
             self._pycog = PyCog()
-            self.discord_bot.add_cog(self._pycog)
+            self.register_cog(self._pycog)
+
 
     def run(self, token: str):
-        self.discord_bot.run(token)
+        asyncio.run(self._main(token))
+
+    async def _main(self, token: str):
+        if not self.bot_initizalized:
+            self.bot_initizalized = True
+            for cog in self._cogs:
+                await self.discord_bot.add_cog(cog)
+
+        async with self.discord_bot:
+            await self.discord_bot.start(token)
