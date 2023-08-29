@@ -27,9 +27,12 @@ class Runner:
 
         intents = discord.Intents.default()
         intents.messages = True
+        intents.message_content = True
         intents.dm_messages = True
         intents.emojis_and_stickers = True
         intents.reactions = True
+        intents.guild_messages = True
+        intents.guild_reactions = True
 
         self.discord_bot = commands.Bot(
             intents=intents,
