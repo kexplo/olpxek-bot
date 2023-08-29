@@ -1,5 +1,6 @@
 import asyncio
 import io
+from typing import Literal, Optional
 
 import discord
 from discord.ext import commands
@@ -34,32 +35,16 @@ class FinanceCog(commands.Cog):
                 file=discord.File(io.BytesIO(capture), filename="finviz.png")
             )
 
-    @commands.command(aliases=("주식", "주가"))
-    async def stock(self, ctx, *args):
-        if len(args) == 0:
-            return
-
+    @commands.hybrid_command(name="stock", with_app_command=True, aliases=("주식", "주가"))
+    async def stock(
+        self,
+        ctx: commands.Context,
+        query: str,
+        chart_option: Optional[Literal["일봉", "주봉", "월봉", "1일", "3개월", "1년", "3년", "10년"]],
+        verbose: Optional[Literal["-v", "--verbose", "verbose", "v"]],
+    ):
         # parse options
-        show_total_infos = False
-        chart_option = None
-        if len(args) >= 2:
-            for option in args[1:]:
-                if option.lower() in ["-v", "--verbose", "verbose", "v"]:
-                    show_total_infos = True
-                    continue
-                if option in [
-                    "일봉",
-                    "주봉",
-                    "월봉",
-                    "1일",
-                    "3개월",
-                    "1년",
-                    "3년",
-                    "10년",
-                ]:
-                    chart_option = option
-                    continue
-        query = args[0]
+        show_total_infos = verbose is not None
 
         api = await NaverStockAPI.from_query(query)
         stock_data = await api.fetch_stock_data()
