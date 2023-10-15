@@ -13,11 +13,11 @@ test: poetry.lock
 	poetry run pytest -vv
 
 lint: poetry.lock
-	poetry run black --line-length=79 --check --diff $(CODE)
+	poetry run black --check --diff $(CODE)
 	poetry run flake8 olpxek_bot --count --show-source --statistics
 
 format: poetry.lock
-	poetry run black --line-length=79 $(CODE)
+	poetry run black $(CODE)
 
 build: poetry.lock
 	poetry build
