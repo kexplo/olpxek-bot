@@ -1,12 +1,11 @@
 import asyncio
-
 from typing import Optional, Tuple
 
 import discord
 from discord.ext import commands
 import sentry_sdk
 
-from olpxek_bot.cogs import FinanceCog, PyCog
+from olpxek_bot.cogs import FinanceCog, LLMCog, PyCog
 from olpxek_bot.config import ConfigLoader, DefaultConfig
 from olpxek_bot.olpxekbot import OlpxekBot
 
@@ -47,6 +46,7 @@ class Runner:
             FinanceCog(self.config),
         ]
         self._pycog: Optional[PyCog] = None
+        self._llmcog: Optional[LLMCog] = None
 
     def try_load_config(self, config_loader: ConfigLoader):
         try:
@@ -81,6 +81,10 @@ class Runner:
             self._pycog = PyCog()
             self.register_cog(self._pycog)
 
+    def add_llmcog(self):
+        if self._llmcog is None:
+            self._llmcog = LLMCog()
+            self.register_cog(self._llmcog)
 
     def run(self, token: str):
         asyncio.run(self._main(token))

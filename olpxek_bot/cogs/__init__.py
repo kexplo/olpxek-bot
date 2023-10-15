@@ -1,5 +1,5 @@
 from olpxek_bot.cogs.finance import FinanceCog
+from olpxek_bot.cogs.llm import LLMCog
 from olpxek_bot.cogs.py import PyCog
 
-
-__all__ = ["FinanceCog", "PyCog"]
+__all__ = ["FinanceCog", "PyCog", "LLMCog"]

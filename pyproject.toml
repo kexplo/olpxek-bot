@@ -20,6 +20,7 @@ omegaconf = "^2.0.6"
 matplotlib = "^3.3.4"
 pandas = "^1.2.3"
 mplfinance = "^0.12.7-alpha.10"
+rich = "^13.6.0"
 
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0.3"
