@@ -14,7 +14,7 @@ test: poetry.lock
 
 lint: poetry.lock
 	poetry run black --check --diff $(CODE)
-	poetry run flake8 olpxek_bot --count --show-source --statistics
+	poetry run ruff check $(CODE)
 
 format: poetry.lock
 	poetry run black $(CODE)
