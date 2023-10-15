@@ -17,8 +17,8 @@ async def owner_or_guild_only(ctx):
 class OlpxekBot(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.text_reactions = {}  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
-        self.cached_emojis = {}  # type: Dict[str, discord.Emoji]
+        self.text_reactions: Dict[Tuple[str, ...], Tuple[str, ...]] = {}
+        self.cached_emojis: Dict[str, discord.Emoji] = {}
         # disable pm
         bot.add_check(owner_or_guild_only)
 
