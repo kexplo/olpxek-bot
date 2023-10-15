@@ -59,19 +59,13 @@ async def fetch_price(ticker: str) -> CryptoPrice:
 
     price_data: Dict[str, Union[str, int, float]] = {}
     async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"https://api.upbit.com/v1/ticker?markets={ticker}"
-        ) as resp:
-            price_data = cast(List[Any], await (resp.json()))[0]
+        async with session.get(f"https://api.upbit.com/v1/ticker?markets={ticker}") as resp:
+            price_data = cast(List[Any], await resp.json())[0]
 
     ticker_names = await get_ticker_names(ticker)
     trade_price = cast(Union[int, float], price_data["trade_price"])
-    signed_change_price = cast(
-        Union[int, float], price_data["signed_change_price"]
-    )
-    signed_change_rate: float = round(
-        cast(float, price_data["signed_change_rate"]) * 100, 2
-    )
+    signed_change_price = cast(Union[int, float], price_data["signed_change_price"])
+    signed_change_rate: float = round(cast(float, price_data["signed_change_rate"]) * 100, 2)
 
     return CryptoPrice(
         ticker,

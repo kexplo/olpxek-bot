@@ -12,7 +12,7 @@ async def get_finviz_map_capture() -> bytes:
         browser = await p.chromium.launch()
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0",  # noqa: E501
-            viewport={"width": 1280, "height": 900}
+            viewport={"width": 1280, "height": 900},
         )
         page = await context.new_page()
         await page.goto("https://finviz.com/map.ashx")

@@ -6,9 +6,7 @@ import mplfinance as mpf
 import pandas as pd
 
 
-def draw_upbit_chart(
-    upbit_candles: List[Dict[str, Union[str, float, int]]], buf: IO[Any]
-):
+def draw_upbit_chart(upbit_candles: List[Dict[str, Union[str, float, int]]], buf: IO[Any]):
     df = pd.DataFrame(upbit_candles)
     df = df[
         [

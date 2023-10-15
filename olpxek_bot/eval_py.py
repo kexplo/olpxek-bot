@@ -17,7 +17,6 @@ from RestrictedPython.Guards import (
 
 
 def eval_py(source: str) -> str:
-
     builtins = safe_builtins.copy()
     builtins.update(utility_builtins)
     builtins.update(limited_builtins)

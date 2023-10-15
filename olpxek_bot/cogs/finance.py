@@ -31,9 +31,7 @@ class FinanceCog(commands.Cog):
         async with self.finviz_cmd_lock:
             await ctx.message.add_reaction("🆗")
             capture = await get_finviz_map_capture()
-            await ctx.send(
-                file=discord.File(io.BytesIO(capture), filename="finviz.png")
-            )
+            await ctx.send(file=discord.File(io.BytesIO(capture), filename="finviz.png"))
 
     @commands.hybrid_command(name="stock", with_app_command=True, aliases=("주식", "주가"))
     async def stock(
@@ -74,9 +72,7 @@ class FinanceCog(commands.Cog):
             for k, v in stock_data.total_infos.items():
                 embed.add_field(name=k, value=v)
         else:
-            embed.add_field(
-                name="전체 정보", value="두 번째 인자로 `-v`를 추가하세요"
-            )  # fmt: off
+            embed.add_field(name="전체 정보", value="두 번째 인자로 `-v`를 추가하세요")  # fmt: off
         embed.set_footer(text="powered by NAVER stock")
 
         charts_by_option = {
@@ -111,10 +107,7 @@ class FinanceCog(commands.Cog):
 
         embed.add_field(
             name=f"{price.trade_price:,} {price.currency_code}",
-            value=(
-                f"{price.signed_change_price:,} ({price.signed_change_rate}%)"
-                f"{kimp_str}"
-            ),
+            value=(f"{price.signed_change_price:,} ({price.signed_change_rate}%)" f"{kimp_str}"),
         )
         embed.set_footer(text="powered by Upbit")
 
@@ -122,9 +115,7 @@ class FinanceCog(commands.Cog):
         with io.BytesIO() as buf:
             draw_upbit_chart(candles, buf)
             buf.seek(0)
-            await ctx.send(
-                embed=embed, file=discord.File(buf, filename="chart.png")
-            )
+            await ctx.send(embed=embed, file=discord.File(buf, filename="chart.png"))
 
     @commands.command(aliases=("김프",))
     async def kimp(self, ctx):

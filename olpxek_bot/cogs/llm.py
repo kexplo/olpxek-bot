@@ -27,7 +27,7 @@ async def request_llama_stream(prompt: str):
                 if not buffer.startswith("data: "):
                     continue
                 data_string = buffer.removeprefix("data: ")
-                if data_string == '[DONE]':
+                if data_string == "[DONE]":
                     return
                 try:
                     choice = json.loads(data_string)["choices"][0]
@@ -69,7 +69,9 @@ class LLMCog(commands.Cog):
 
 
 if __name__ == "__main__":
+
     async def test_main():
         async for content in request_llama_stream("대한민국의 수도는?"):
             print(content)
+
     asyncio.run(test_main())

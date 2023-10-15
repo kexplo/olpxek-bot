@@ -4,9 +4,7 @@ from cachetools import TTLCache
 
 
 TWELVE_HOURS = 60 * 60 * 12
-BINANCE_BTC_USDT_PRICE_API_URL = (
-    "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"  # noqa: E501
-)
+BINANCE_BTC_USDT_PRICE_API_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"  # noqa: E501
 
 
 @cached(TTLCache(maxsize=1, ttl=TWELVE_HOURS))

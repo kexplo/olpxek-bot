@@ -17,9 +17,7 @@ async def owner_or_guild_only(ctx):
 class OlpxekBot(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.text_reactions = (
-            {}
-        )  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
+        self.text_reactions = {}  # type: Dict[Tuple[str, ...], Tuple[str, ...]]  # noqa: E501
         self.cached_emojis = {}  # type: Dict[str, discord.Emoji]
         # disable pm
         bot.add_check(owner_or_guild_only)
@@ -57,9 +55,7 @@ class OlpxekBot(commands.Cog):
         if roll_count <= 0 or faces <= 0:
             return await ctx.message.add_reaction(self.cached_emojis["_x"])
 
-        rolled_numbers = [
-            random.randint(1, faces) for x in range(roll_count)  # noqa: S311
-        ]
+        rolled_numbers = [random.randint(1, faces) for x in range(roll_count)]  # noqa: S311
         result_str = ", ".join(map(str, rolled_numbers))
         await ctx.send(f"{arg} 결과: {result_str}")
 
@@ -92,12 +88,8 @@ class OlpxekBot(commands.Cog):
         for keywords, reactions in self.text_reactions.items():
             for keyword in keywords:
                 if keyword in message.content:
-                    return await message.channel.send(
-                        random.choice(reactions)  # noqa: S311
-                    )
+                    return await message.channel.send(random.choice(reactions))  # noqa: S311
 
-    def update_text_reactions(
-        self, comma_separated_keywords: str, reactions: Tuple[str, ...]
-    ):
+    def update_text_reactions(self, comma_separated_keywords: str, reactions: Tuple[str, ...]):
         keywords = tuple(map(str.strip, comma_separated_keywords.split(",")))
         self.text_reactions[keywords] = reactions

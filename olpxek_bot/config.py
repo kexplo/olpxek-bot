@@ -34,9 +34,7 @@ class ConfigLoader:
         config = OmegaConf.load(self.config_filename)
         return self.make_structured_config(config)
 
-    def make_structured_config(
-        self, config: Union[DictConfig, ListConfig]
-    ) -> DefaultConfig:
+    def make_structured_config(self, config: Union[DictConfig, ListConfig]) -> DefaultConfig:
         schema = OmegaConf.structured(self.config_cls)
         merged = OmegaConf.merge(schema, config)
         return cast(DefaultConfig, merged)
