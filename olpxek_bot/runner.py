@@ -33,10 +33,7 @@ class Runner:
         intents.guild_messages = True
         intents.guild_reactions = True
 
-        self.discord_bot = commands.Bot(
-            intents=intents,
-            command_prefix=command_prefix, help_command=help_command
-        )
+        self.discord_bot = commands.Bot(intents=intents, command_prefix=command_prefix, help_command=help_command)
         self.bot_initizalized = False
 
         self.olpxekbot = OlpxekBot(self.discord_bot)
@@ -64,12 +61,8 @@ class Runner:
         if _dsn is not None:
             sentry_sdk.init(_dsn, traces_sample_rate=1.0)
 
-    def update_text_reactions(
-        self, comma_separated_keywords: str, reactions: Tuple[str, ...]
-    ):
-        self.olpxekbot.update_text_reactions(
-            comma_separated_keywords, reactions
-        )
+    def update_text_reactions(self, comma_separated_keywords: str, reactions: Tuple[str, ...]):
+        self.olpxekbot.update_text_reactions(comma_separated_keywords, reactions)
 
     def register_cog(self, cog: commands.Cog):
         if self.bot_initizalized:
