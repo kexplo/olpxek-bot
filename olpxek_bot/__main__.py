@@ -20,6 +20,7 @@ def run(token: str):
     runner.update_text_reactions("왜죠", ("저야 모르죠",))
     runner.add_pycog()
     runner.add_llmcog()
+    runner.add_karlocog('<redacted>')
     runner.run(token)
 
 

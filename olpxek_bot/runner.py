@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 import sentry_sdk
 
-from olpxek_bot.cogs import FinanceCog, LLMCog, PyCog
+from olpxek_bot.cogs import FinanceCog, KarloCog, LLMCog, PyCog
 from olpxek_bot.config import ConfigLoader, DefaultConfig
 from olpxek_bot.olpxekbot import OlpxekBot
 
@@ -44,6 +44,7 @@ class Runner:
         ]
         self._pycog: Optional[PyCog] = None
         self._llmcog: Optional[LLMCog] = None
+        self._karlocog: Optional[KarloCog] = None
 
     def try_load_config(self, config_loader: ConfigLoader):
         try:
@@ -78,6 +79,11 @@ class Runner:
         if self._llmcog is None:
             self._llmcog = LLMCog()
             self.register_cog(self._llmcog)
+
+    def add_karlocog(self, api_key: str):
+        if self._karlocog is None:
+            self._karlocog = KarloCog(api_key)
+            self.register_cog(self._karlocog)
 
     def run(self, token: str):
         asyncio.run(self._main(token))
