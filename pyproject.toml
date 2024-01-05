@@ -21,6 +21,7 @@ matplotlib = "^3.3.4"
 pandas = "^1.2.3"
 mplfinance = "^0.12.7-alpha.10"
 rich = "^13.6.0"
+olpxek-bot-private-cogs = {path = "../olpxek-bot-private-cogs", develop = true}
 
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0.3"

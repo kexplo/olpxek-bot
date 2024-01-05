@@ -18,6 +18,7 @@ def run(token: str):
         ("응 아니야", "응 맞아", "아닐걸", "맞을걸"),
     )
     runner.update_text_reactions("왜죠", ("저야 모르죠",))
+    runner.add_private_cogs()
     runner.add_pycog()
     runner.add_llmcog()
     runner.add_karlocog("<redacted>")

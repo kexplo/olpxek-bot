@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 
 import discord
 from discord.ext import commands
+from olpxek_bot_private_cogs import list_cogs
 import sentry_sdk
 
 from olpxek_bot.cogs import FinanceCog, KarloCog, LLMCog, PyCog
@@ -69,6 +70,10 @@ class Runner:
         if self.bot_initizalized:
             raise RuntimeError("Cannot register cog after bot is initialized")
         self._cogs.append(cog)
+
+    def add_private_cogs(self):
+        for cog_cls in list_cogs():
+            self.register_cog(cog_cls(self.discord_bot))
 
     def add_pycog(self):
         if self._pycog is None:
