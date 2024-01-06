@@ -73,6 +73,13 @@ class OlpxekBot(commands.Cog):
         random.shuffle(items)
         await ctx.send(" ".join(items))
 
+    @commands.command()
+    @commands.is_owner()
+    async def sync(self, ctx):
+        # sync application commands
+        synced = await ctx.bot.tree.sync()
+        await ctx.send(f"synced {len(synced)} commands")
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         capture_exception(error)
