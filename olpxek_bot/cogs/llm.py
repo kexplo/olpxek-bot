@@ -50,10 +50,28 @@ class LLMCog(commands.Cog):
         async with self.llama_cmd_lock:
             await ctx.message.add_reaction("💬")
             message = await ctx.reply("💬..")
-            try:
+            content = ""
+
+            async def recv_llama_stream(prompt: str):
+                nonlocal content
                 async for content in request_llama_stream(arg):
-                    if len(content.strip()) > 0:
-                        await message.edit(content=content)
+                    # request_llama_stream returns accumulated content
+                    content = content
+
+            try:
+                task = asyncio.create_task(recv_llama_stream(arg))
+                prev_content = ""
+                while not task.done():
+                    if not content.strip():
+                        await asyncio.sleep(0.1)
+                        continue
+                    if prev_content == content:
+                        # content not changed
+                        await asyncio.sleep(0.1)
+                        continue
+                    prev_content = content
+                    await message.edit(content=content)
+                    await asyncio.sleep(1)  # prevent rate limit
             except Exception as e:
                 await ctx.message.add_reaction("❌")
                 print(e)
