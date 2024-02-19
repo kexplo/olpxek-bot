@@ -6,7 +6,7 @@ from discord.ext import commands
 from olpxek_bot_private_cogs import list_cogs
 import sentry_sdk
 
-from olpxek_bot.cogs import FinanceCog, KarloCog, LLMCog, PyCog
+from olpxek_bot.cogs import FinanceCog
 from olpxek_bot.config import ConfigLoader, DefaultConfig
 from olpxek_bot.olpxekbot import OlpxekBot
 
@@ -43,9 +43,6 @@ class Runner:
             self.olpxekbot,
             FinanceCog(self.config),
         ]
-        self._pycog: Optional[PyCog] = None
-        self._llmcog: Optional[LLMCog] = None
-        self._karlocog: Optional[KarloCog] = None
 
     def try_load_config(self, config_loader: ConfigLoader):
         try:
@@ -71,24 +68,9 @@ class Runner:
             raise RuntimeError("Cannot register cog after bot is initialized")
         self._cogs.append(cog)
 
-    def add_private_cogs(self):
+    def register_private_cogs(self):
         for cog_cls in list_cogs():
             self.register_cog(cog_cls(self.discord_bot))
-
-    def add_pycog(self):
-        if self._pycog is None:
-            self._pycog = PyCog()
-            self.register_cog(self._pycog)
-
-    def add_llmcog(self):
-        if self._llmcog is None:
-            self._llmcog = LLMCog()
-            self.register_cog(self._llmcog)
-
-    def add_karlocog(self, api_key: str):
-        if self._karlocog is None:
-            self._karlocog = KarloCog(api_key)
-            self.register_cog(self._karlocog)
 
     def run(self, token: str):
         asyncio.run(self._main(token))
