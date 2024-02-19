@@ -1,7 +1,8 @@
+from olpxek_bot_private_cogs import list_cogs
 import typer
 
-from olpxek_bot.runner import Runner
 from olpxek_bot.cogs import KarloCog, LLMCog, PyCog
+from olpxek_bot.runner import Runner
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger('discord')
@@ -20,7 +21,9 @@ def run(token: str):
     )
     runner.update_text_reactions("왜죠", ("저야 모르죠",))
 
-    runner.register_private_cogs()
+    # register private cog classes
+    for cog_cls in list_cogs():
+        runner.register_cog_cls(cog_cls)
 
     runner.register_cog(PyCog())
     runner.register_cog(LLMCog())
