@@ -23,6 +23,7 @@ mplfinance = "^0.12.7-alpha.10"
 rich = "^13.6.0"
 olpxek-bot-private-cogs = {path = "../olpxek-bot-private-cogs", develop = true}
 youtube-transcript-api = "^0.6.2"
+google-generativeai = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0.3"

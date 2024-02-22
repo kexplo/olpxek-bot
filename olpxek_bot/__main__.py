@@ -13,6 +13,7 @@ import typer
 
 from olpxek_bot.cogs import KarloCog, LLMCog, PyCog, SummarizeYoutubeCog
 from olpxek_bot.runner import Runner
+from olpxek_bot.llms.gemini import GeminiLLM
 from olpxek_bot.utils.llm_provider import LLMProvider
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -40,6 +41,7 @@ def run(token: str):
     # add private llms
     for private_llm in list_llms():
         llm_provider.add_llm(private_llm)
+    llm_provider.add_llm(GeminiLLM())
 
     runner.register_cog(PyCog())
     runner.register_cog(LLMCog())
