@@ -1,8 +1,19 @@
-from olpxek_bot_private_cogs import list_cogs
+import logging
+
+try:
+    from olpxek_bot_private_cogs import list_cogs, list_llms
+except ImportError:
+    def list_cogs():
+        return []
+
+    def list_llms():
+        return []
+
 import typer
 
-from olpxek_bot.cogs import KarloCog, LLMCog, PyCog
+from olpxek_bot.cogs import KarloCog, LLMCog, PyCog, SummarizeYoutubeCog
 from olpxek_bot.runner import Runner
+from olpxek_bot.utils.llm_provider import LLMProvider
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger('discord')
@@ -25,9 +36,15 @@ def run(token: str):
     for cog_cls in list_cogs():
         runner.register_cog_cls(cog_cls)
 
+    llm_provider = LLMProvider()
+    # add private llms
+    for private_llm in list_llms():
+        llm_provider.add_llm(private_llm)
+
     runner.register_cog(PyCog())
     runner.register_cog(LLMCog())
     runner.register_cog(KarloCog("<redacted>"))
+    runner.register_cog(SummarizeYoutubeCog(llm_provider))
 
     runner.run(token)
 

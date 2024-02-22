@@ -22,6 +22,7 @@ pandas = "^1.2.3"
 mplfinance = "^0.12.7-alpha.10"
 rich = "^13.6.0"
 olpxek-bot-private-cogs = {path = "../olpxek-bot-private-cogs", develop = true}
+youtube-transcript-api = "^0.6.2"
 
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0.3"
