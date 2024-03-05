@@ -1,43 +1,35 @@
 import asyncio
-import json
 
-import aiohttp
 from discord.ext import commands
+from openai import AsyncOpenAI
 from rich import print
 
 
-async def request_llama_stream(prompt: str):
+client = AsyncOpenAI(
+    api_key="dummy",
+    base_url="http://146.56.128.82:9997/v1",
+)
+
+
+async def request_chat_stream(prompt: str):
     # LLaMA Prompt:
     # full_prompt = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n"  # noqa: E501
     # full_prompt += f"### Instructions: \n{prompt}\n\n### Response: \n"
     # 42dot LLM Prompt:
-    full_prompt = "호기심 많은 인간 (human)과 인공지능 봇 (AI bot)의 대화입니다. 봇은 인간의 질문에 대해 친절하게 유용하고 상세한 답변을 제공합니다. "  # noqa: E501
-    full_prompt += f"<human>: {prompt} <bot>:"
+    # full_prompt = "호기심 많은 인간 (human)과 인공지능 봇 (AI bot)의 대화입니다. 봇은 인간의 질문에 대해 친절하게 유용하고 상세한 답변을 제공합니다. "  # noqa: E501
+    # full_prompt += f"<human>: {prompt} <bot>:"
 
     final_response_text = ""
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            "http://146.56.128.82:8000/v1/completions",
-            json={"prompt": full_prompt, "max_tokens": 1024, "stream": True},
-            timeout=60 * 10,
-        ) as resp:
-            async for data, end_of_http_chunk in resp.content.iter_chunks():
-                buffer = data.decode().strip()
-                # ignore other responses like ping
-                if not buffer.startswith("data: "):
-                    continue
-                data_string = buffer.removeprefix("data: ")
-                if data_string == "[DONE]":
-                    return
-                try:
-                    choice = json.loads(data_string)["choices"][0]
-                except json.JSONDecodeError as e:
-                    print(f"failed to decode json: {data_string}")
-                    raise e
-                if choice["finish_reason"] == "stop":
-                    return
-                final_response_text += choice["text"]
-                yield final_response_text
+    stream = await client.chat.completions.create(
+        model="gemma-2b-it-gguf",
+        messages=[{"role": "user", "content": prompt}],
+        stream=True,
+    )
+    async for chunk in stream:
+        chunk_text = chunk.choices[0].delta.content or ""
+        if chunk_text:
+            final_response_text += chunk_text
+            yield final_response_text
 
 
 class LLMCog(commands.Cog):
@@ -54,8 +46,8 @@ class LLMCog(commands.Cog):
 
             async def recv_llama_stream(prompt: str):
                 nonlocal content
-                async for content in request_llama_stream(arg):
-                    # request_llama_stream returns accumulated content
+                async for content in request_chat_stream(arg):
+                    # request_chat_stream returns accumulated content
                     content = content
 
             try:
@@ -72,6 +64,7 @@ class LLMCog(commands.Cog):
                     prev_content = content
                     await message.edit(content=content)
                     await asyncio.sleep(1)  # prevent rate limit
+                task.result()  # raise exception if any
             except Exception as e:
                 await ctx.message.add_reaction("❌")
                 print(e)
@@ -89,7 +82,7 @@ class LLMCog(commands.Cog):
 if __name__ == "__main__":
 
     async def test_main():
-        async for content in request_llama_stream("대한민국의 수도는?"):
+        async for content in request_chat_stream("대한민국의 수도는?"):
             print(content)
 
     asyncio.run(test_main())
