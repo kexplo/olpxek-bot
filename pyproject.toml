@@ -28,7 +28,6 @@ google-generativeai = "^0.3.2"
 [tool.poetry.dev-dependencies]
 ptpython = "^3.0.3"
 mypy = "*"
-black = "*"
 flake8-import-order = "^0.18.2"
 pep8-naming = "^0.13.3"
 flake8-pytest-style = "^1.2.3"
@@ -49,9 +48,6 @@ ruff = "^0.0.290"
 
 [tool.isort]
 profile = "google"
-
-[tool.black]
-line-length = 120
 
 [tool.ruff]
 line-length = 120
