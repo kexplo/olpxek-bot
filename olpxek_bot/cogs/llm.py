@@ -51,8 +51,8 @@ class LLMCog(commands.Cog):
                     content = content
 
             try:
-                task = asyncio.create_task(recv_llama_stream(arg))
                 prev_content = ""
+                task = asyncio.create_task(recv_llama_stream(arg))
                 while not task.done():
                     if not content.strip():
                         await asyncio.sleep(0.1)
@@ -68,9 +68,8 @@ class LLMCog(commands.Cog):
             except Exception as e:
                 await ctx.message.add_reaction("❌")
                 print(e)
-                prev_content = message.content
-                if prev_content:
-                    new_content = prev_content + "\n---\n" + str(e)
+                if content:
+                    new_content = content + "\n---\n" + str(e)
                 else:
                     new_content = str(e)
                 await message.edit(content=new_content)
